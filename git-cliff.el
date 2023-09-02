@@ -138,8 +138,9 @@ DIR.  If REGEXP is non-nil, match configs by REGEXP instead of
                    nil nil nil nil nil)))
     (setq git-cliff--config new)))
 
-(defun git-cliff--set-range (prompt &rest _)
-  "Read and set commits range for git-cliff with PROMPT."  )
+;;TODO
+;; (defun git-cliff--set-range (prompt &rest _)
+;;   "Read and set commits range for git-cliff with PROMPT."  )
 
 (defun git-cliff--template-locate (dir face)
   "Return a list of templates in DIR propertized in FACE."
@@ -167,10 +168,10 @@ DIR.  If REGEXP is non-nil, match configs by REGEXP instead of
   :argument-regexp "\\(--\\(latest\\|current\\|unreleased\\)\\)"
   :choices '("latest" "current" "unreleased"))
 
-(transient-define-argument git-cliff--range-argument ()
-  :argument "--="
-  :prompt "Limit to commits: "
-  :reader #'git-cliff--set-range)
+;; (transient-define-argument git-cliff--range-argument ()
+;;   :argument "--="
+;;   :prompt "Limit to commits: "
+;;   :reader #'git-cliff--set-range)
 
 (transient-define-argument git-cliff--workdir-argument ()
   :argument "--workdir="
@@ -274,14 +275,15 @@ DIR.  If REGEXP is non-nil, match configs by REGEXP instead of
      :choices ("header" "footer" "all"))
     ("-o" "Generate new changelog" "--output=")
     ("-p" "Prepend existing changelog" "--prepend=")]
-   ["Range"
-    ("--" "Limit to commits" git-cliff--range-argument)]
+   ;; TODO implement range argus
+   ;; ["Range"
+   ;;  ("--" "Limit to commits" git-cliff--range-argument)]
    [["Run"
      ("r" "Run command" git-cliff--run)]
     ["Other"
-     ("p" "Choose template"  git-cliff--choose-template)
-     ("o" "Open changelog" git-cliff--open-changelog)
-     ("e" "Edit config"    git-cliff--edit-config)]]])
+     ("p" "Choose template" git-cliff--choose-template)
+     ("o" "Open changelog"  git-cliff--open-changelog)
+     ("e" "Edit config"     git-cliff--edit-config)]]])
 
 (provide 'git-cliff)
 ;;; git-cliff.el ends here
