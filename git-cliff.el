@@ -138,6 +138,10 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                    nil nil nil nil nil)))
     (setq git-cliff--config new)))
 
+(defun git-cliff--set-changelog (prompt &rest _)
+  "Read and set chanelog file for current working directory with PROMPT."
+  (read-from-minibuffer prompt (cons "CHANGELOG.md" 10)))
+
 ;;TODO
 ;; (defun git-cliff--set-range (prompt &rest _)
 ;;   "Read and set commits range for git-cliff with PROMPT."  )
@@ -284,8 +288,12 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ("-W" "Set custom commit messages to include in changelog" "--with-commit=")
     ("-s" "Strip the given parts from changelog" "--strip="
      :choices ("header" "footer" "all"))
-    ("-o" "Generate new changelog" "--output=")
-    ("-p" "Prepend existing changelog" "--prepend=")]
+    ("-o" "Generate new changelog" "--output="
+     :prompt "Set output file: "
+     :reader git-cliff--set-changelog)
+    ("-p" "Prepend existing changelog" "--prepend="
+     :prompt "Set prepend file: "
+     :reader git-cliff--set-changelog)]
    ;; TODO implement range args
    ;; ["Range"
    ;;  ("--" "Limit to commits" git-cliff--range-arg)]
