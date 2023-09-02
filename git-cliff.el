@@ -122,8 +122,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 
 (defun git-cliff--configs ()
   "Return a list of git-cliff configs available for current working directory."
-  (delq nil (list (git-cliff--config-locate (git-cliff--workdir))
-                  (git-cliff--config-global))))
+  (delq nil (append (git-cliff--config-locate (git-cliff--workdir))
+                    (list (git-cliff--config-global)))))
 
 (defun git-cliff--config ()
   "Return config file path of git-cliff."
