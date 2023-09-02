@@ -144,9 +144,8 @@ DIR.  If REGEXP is non-nil, match configs by REGEXP instead of
 (defun git-cliff--template-locate (dir face)
   "Return a list of templates in DIR propertized in FACE."
   (mapcar (lambda (x)
-            (let ((name (file-name-nondirectory x)))
-              (put-text-property 0 1 'path name x)
-              (propertize name 'face face)))
+            (concat (propertize (file-name-directory x) 'face 'font-lock-comment-face)
+                    (propertize (file-name-nondirectory x) 'face face)))
           (git-cliff--config-locate dir t "\\.\\(to\\|ya\\)ml\\'")))
 
 (defun git-cliff--templates ()
@@ -210,16 +209,15 @@ DIR.  If REGEXP is non-nil, match configs by REGEXP instead of
     (when (or (not local-config)
               (setq backup (yes-or-no-p "File exist, replace it?")))
       (when-let* ((template
-                   (get-text-property 0 'path
-                                      (completing-read
-                                       "Select a template: "
-                                       (if git-cliff-enable-presets
-                                           (git-cliff--templates)
-                                         (seq-filter
-                                          (lambda (x) (face-equal
-                                                       (get-text-property 0 'face x)
-                                                       'git-cliff-template-extra))
-                                          (git-cliff--templates))) nil t)))
+                   (completing-read
+                    "Select a template: "
+                    (if git-cliff-enable-presets
+                        (git-cliff--templates)
+                      (seq-filter
+                       (lambda (x) (face-equal
+                                    (get-text-property (- (length x) 1) 'face x)
+                                    'git-cliff-template-extra))
+                       (git-cliff--templates))) nil t))
                   (newname (concat "cliff." (file-name-extension template))))
         (when backup
           (rename-file local-config
