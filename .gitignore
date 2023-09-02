@@ -1,5 +1,7 @@
 # Compiled
 *.elc
+*-autoloads.el
+*.md.tmp
 
 # Packaging
 .cask
