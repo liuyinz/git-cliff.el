@@ -184,12 +184,12 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   :argument-regexp "\\(--\\(latest\\|current\\|unreleased\\)\\)"
   :choices '("latest" "current" "unreleased"))
 
-;; (transient-define-argument git-cliff--range-argument ()
+;; (transient-define-argument git-cliff--range-arg ()
 ;;   :argument "--="
 ;;   :prompt "Limit to commits: "
 ;;   :reader #'git-cliff--set-range)
 
-(transient-define-argument git-cliff--workdir-argument ()
+(transient-define-argument git-cliff--workdir-arg ()
   :argument "--workdir="
   :class 'transient-option
   :always-read t
@@ -198,7 +198,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   :prompt "Set working directory: "
   :reader #'git-cliff--set-workdir)
 
-(transient-define-argument git-cliff--config-argument ()
+(transient-define-argument git-cliff--config-arg ()
   :argument "--config="
   :class 'transient-option
   :always-read t
@@ -260,9 +260,9 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 ;;;###autoload
 (transient-define-prefix git-cliff-menu ()
   "Invoke command for `git-cliff'."
-  :value (list "--sort=oldest" "--prepend=CHANGELOG.md" "--latest")
+  :value '("--sort=oldest" "--prepend=CHANGELOG.md" "--latest")
   :incompatible '(("--output=" "--prepend=")
-                  ("--latest" "--current" "--unreleased" "--"))
+                  ("--latest" "--current" "--unreleased"))
   [:class transient-subgroups
    ["Flags"
     :pad-keys t
@@ -271,8 +271,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ;; ("-j" "Print changelog context as JSON" "--context")
     ("s" "Set commits range quick" git-cliff--range-switch)]
    ["Options"
-    ("-w" "Set working directory" git-cliff--workdir-argument)
-    ("-c" "Set config file" git-cliff--config-argument)
+    ("-w" "Set working directory" git-cliff--workdir-arg)
+    ("-c" "Set config file" git-cliff--config-arg)
     ("-r" "Set git repository" "--repository=")
     ("-S" "Set commits order inside sections" "--sort="
      :always-read t
@@ -288,7 +288,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ("-p" "Prepend existing changelog" "--prepend=")]
    ;; TODO implement range args
    ;; ["Range"
-   ;;  ("--" "Limit to commits" git-cliff--range-argument)]
+   ;;  ("--" "Limit to commits" git-cliff--range-arg)]
    [["Run"
      ("r" "Run command" git-cliff--run)]
     ["Other"
