@@ -5,7 +5,7 @@
 ;; Author: liuyinz <liuyinz95@gmail.com>
 ;; Maintainer: liuyinz <liuyinz95@gmail.com>
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "27.1") (transient "0.4.1"))
+;; Package-Requires: ((emacs "26.3") (transient "0.4.1"))
 ;; Keywords: tools
 ;; Homepage: https://github.com/liuyinz/git-cliff
 
@@ -71,7 +71,7 @@
   "Working directory of current buffer located in git-cliff.")
 
 (defvar-local git-cliff--config nil
-  "Configuration filep of current working directory in git-cliff.")
+  "Configuration file of current working directory in git-cliff.")
 
 (defun git-cliff--get-infix (infix)
   "Return the value of INFIX in current `git-cliff-menu'."
@@ -102,13 +102,13 @@
 ;; config
 (defun git-cliff--config-locate (dir &optional full regexp)
   "Return a list of git cliff config files in DIR.
-If FULL is non-nil, return abosulte path, otherwise relative path according to
-DIR.  If REGEXP is non-nil, match configs by REGEXP instead of
+If FULL is non-nil, return absolute path, otherwise relative path according to
+DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 `git-cliff-config-regexp'."
   (delq nil (directory-files dir full (or regexp git-cliff-config-regexp))))
 
 (defun git-cliff--config-global ()
-  "Return global config filepath of git-cliff if exists."
+  "Return global config file path of git-cliff if exists."
   (ignore-errors
     (abbreviate-file-name
      (car (git-cliff--config-locate
@@ -163,6 +163,7 @@ DIR.  If REGEXP is non-nil, match configs by REGEXP instead of
 
 ;; SEE https://emacs.stackexchange.com/a/8177/35676
 (defun git-cliff--templates-comletion-table ()
+  "Return completion table for git-cliff templates."
   (lambda (string pred action)
     (if (eq action 'metadata)
         `(metadata (display-sort-function . ,#'identity))
@@ -285,7 +286,7 @@ DIR.  If REGEXP is non-nil, match configs by REGEXP instead of
      :choices ("header" "footer" "all"))
     ("-o" "Generate new changelog" "--output=")
     ("-p" "Prepend existing changelog" "--prepend=")]
-   ;; TODO implement range argus
+   ;; TODO implement range args
    ;; ["Range"
    ;;  ("--" "Limit to commits" git-cliff--range-argument)]
    [["Run"
