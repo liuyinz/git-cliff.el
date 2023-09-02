@@ -153,14 +153,29 @@ DIR.  If REGEXP is non-nil, match configs by REGEXP instead of
   "Return a list of git-cliff config templates."
   (or git-cliff-templates
       (setq git-cliff-templates
-            (append
-             (git-cliff--template-locate git-cliff-extra-path
-                                         'git-cliff-template-extra)
-             (git-cliff--template-locate (expand-file-name "presets/"
-                                                           (file-name-directory
-                                                            (locate-library
-                                                             "git-cliff")))
-                                         'git-cliff-template-preset)))))
+            (append (git-cliff--template-locate git-cliff-extra-path
+                                                'git-cliff-template-extra)
+                    (git-cliff--template-locate (expand-file-name
+                                                 "presets/"
+                                                 (file-name-directory (locate-library
+                                                                       "git-cliff")))
+                                                'git-cliff-template-preset)))))
+
+;; SEE https://emacs.stackexchange.com/a/8177/35676
+(defun git-cliff--templates-comletion-table ()
+  (lambda (string pred action)
+    (if (eq action 'metadata)
+        `(metadata (display-sort-function . ,#'identity))
+      (complete-with-action
+       action
+       (if git-cliff-enable-presets
+           (git-cliff--templates)
+         (seq-filter (lambda (x)
+                       (face-equal (get-text-property (- (length x) 1) 'face x)
+                                   'git-cliff-template-extra))
+                     (git-cliff--templates)))
+       string
+       pred))))
 
 (transient-define-argument git-cliff--range-switch ()
   :class 'transient-switches
@@ -212,13 +227,8 @@ DIR.  If REGEXP is non-nil, match configs by REGEXP instead of
       (when-let* ((template
                    (completing-read
                     "Select a template: "
-                    (if git-cliff-enable-presets
-                        (git-cliff--templates)
-                      (seq-filter
-                       (lambda (x) (face-equal
-                                    (get-text-property (- (length x) 1) 'face x)
-                                    'git-cliff-template-extra))
-                       (git-cliff--templates))) nil t))
+                    (git-cliff--templates-comletion-table)
+                    nil t))
                   (newname (concat "cliff." (file-name-extension template))))
         (when backup
           (rename-file local-config
