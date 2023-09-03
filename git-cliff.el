@@ -245,6 +245,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
          ;; (dry-run (not (transient-arg-value "-output=" flags)))
          (shell-command-dont-erase-buffer 'beg-last-out))
     (unless cmd (user-error "Cannot find git-cliff in PATH"))
+    ;; update config var if initialized with default config
+    (when (member "--init" args) (setq-local git-cliff--config "cliff.toml"))
     (shell-command (format "%s %s"
                            (shell-quote-argument cmd)
                            (string-join args " ")))))
@@ -272,6 +274,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
           (rename-file local-config
                        (concat local-config (format-time-string "-%Y%m%d%H%M%S"))))
         (copy-file template newname)
+        ;; update config var if initialized woth preset
+        (setq-local git-cliff--config newname)
         (find-file newname)))))
 
 (transient-define-suffix git-cliff--edit-config ()
