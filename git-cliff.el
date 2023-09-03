@@ -317,7 +317,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 ;;;###autoload
 (transient-define-prefix git-cliff-menu ()
   "Invoke command for `git-cliff'."
-  :value '("--sort=oldest" "--prepend=CHANGELOG.md" "--latest")
+  :value '("--sort=oldest")
   :incompatible '(("--output=" "--prepend="))
   [:description git-cliff-menu--header
    :class transient-subgroups
