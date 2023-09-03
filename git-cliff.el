@@ -261,13 +261,33 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
       (find-file-read-only name)
     (message "git-cliff: %s not exist!" name)))
 
+(defun git-cliff--get-latest-tag ()
+  "Return name of latest tag info in local repository if exists."
+  (if-let* ((default-directory (git-cliff--get-infix "--repository="))
+            (rev (shell-command-to-string "git rev-list --tags --max-count=1")))
+      (if (string= rev "")
+          "No tag"
+        (string-trim (shell-command-to-string
+                      (format "git describe --tags %s" rev))))))
+
+(defun git-cliff-menu--header ()
+  "Return a string to list dir and tag info as header."
+  (let ((dir (abbreviate-file-name default-directory))
+        (tag (git-cliff--get-latest-tag)))
+    (format "%s\n %s %s\n %s %s\n"
+            (propertize "Status" 'face 'transient-heading)
+            (propertize "current dir :" 'face 'font-lock-variable-name-face)
+            (propertize dir 'face 'transient-pink)
+            (propertize "latest tag  :" 'face 'font-lock-variable-name-face)
+            (propertize tag 'face 'transient-pink))))
+
 ;;;###autoload
 (transient-define-prefix git-cliff-menu ()
   "Invoke command for `git-cliff'."
   :value '("--sort=oldest" "--prepend=CHANGELOG.md" "--latest")
-  :incompatible '(("--output=" "--prepend=")
-                  ("--latest" "--current" "--unreleased"))
-  [:class transient-subgroups
+  :incompatible '(("--output=" "--prepend="))
+  [:description git-cliff-menu--header
+   :class transient-subgroups
    ["Flags"
     :pad-keys t
     ("-i" "Init default config" ("-i" "--init"))
