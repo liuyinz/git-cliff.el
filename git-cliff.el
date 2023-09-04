@@ -354,7 +354,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
    [["Run"
      ("r" "Run command" git-cliff--run)]
     ["Other"
-     ("p" "Choose template" git-cliff--choose-template)
+     ("c" "Choose template" git-cliff--choose-template)
      ("o" "Open changelog"  git-cliff--open-changelog)
      ("e" "Edit config"     git-cliff--edit-config)]]])
 
