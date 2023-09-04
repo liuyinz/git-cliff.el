@@ -1,4 +1,4 @@
-;;; git-cliff.el --- Generate changelog based on git-cliff -*- lexical-binding: t -*-
+;;; git-cliff.el --- Generate and update changelog using git-cliff -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2023 liuyinz
 
@@ -28,9 +28,8 @@
 
 ;;; Commentary:
 
-;; Generate and update CHANGELOG file in Emacs.
-;; This package provides the interface of `git-cliff' built with transient,
-;; to generate changelog for project.  Call `git-cliff-menu' to start.
+;; This package provides the interface of `git-cliff`, built in transient, to
+;; generate and update changelog for project.  Call `git-cliff-menu` to start.
 
 ;; configurations spec SEE https://git-cliff.org/docs/configuration/
 
