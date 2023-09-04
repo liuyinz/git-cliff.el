@@ -6,7 +6,7 @@
 Generate and update changelog using [git-cliff][git-cliff].
 
 This package provides the interface of [git-cliff][git-cliff], built in transient, to
-generate and update changelog for project.  Call `git-cliff-menu` to start.
+generate and update changelog for project. Call `git-cliff-menu` to start.
 
 <!-- markdown-toc start -->
 
@@ -75,7 +75,7 @@ Clone and add to `load-path`, require the package.
 ## Todo
 
 - [ ] support dir-locals variable
-- [ ] option `--repository` support multi-value
+- [ ] support multi-value in option
 
 ## License
 
