@@ -43,29 +43,29 @@
   "Generate changelog based on git-cliff."
   :group 'git-cliff)
 
-(defcustom git-cliff-enable-presets t
-  "If non-nil, enable templates in package presets directory."
+(defcustom git-cliff-enable-examples t
+  "If non-nil, configs in examples directory are included as presets."
   :type 'boolean
   :group 'git-cliff)
 
 (defcustom git-cliff-extra-path nil
-  "Directory storing user defined templates for git-cliff config."
+  "Directory storing user defined configs for choosing preset."
   :type 'string
   :group 'git-cliff)
 
-(defface git-cliff-template-preset
+(defface git-cliff-preset-example
   '((t (:inherit font-lock-function-name-face)))
-  "Face for git-cliff preset templates set by default.")
+  "Face for git-cliff examples preset set by default.")
 
-(defface git-cliff-template-extra
+(defface git-cliff-preset-extra
   '((t (:inherit font-lock-constant-face)))
-  "Face for git-cliff extra templates defined by user.")
+  "Face for git-cliff extra presets defined by user.")
 
 (defvar git-cliff-config-regexp "\\`cliff\\.\\(to\\|ya\\)ml\\'"
   "Regexp for matching git-cliff config file.")
 
-(defvar git-cliff-templates nil
-  "Templates available for git-cliff.")
+(defvar git-cliff-presets nil
+  "Presets available for git-cliff.")
 
 (defvar-local git-cliff--config nil
   "Configuration file of current working directory in git-cliff.")
@@ -163,39 +163,39 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 ;; (defun git-cliff--set-range (prompt &rest _)
 ;;   "Read and set commits range for git-cliff with PROMPT."  )
 
-(defun git-cliff--template-locate (dir face)
-  "Return a list of templates in DIR propertized in FACE."
+(defun git-cliff--preset-locate (dir face)
+  "Return a list of presets DIR propertized in FACE."
   (mapcar (lambda (x)
             (concat (propertize (file-name-directory x) 'face 'font-lock-comment-face)
                     (propertize (file-name-nondirectory x) 'face face)))
           (git-cliff--config-locate dir t "\\.\\(to\\|ya\\)ml\\'")))
 
-(defun git-cliff--templates ()
-  "Return a list of git-cliff config templates."
-  (or git-cliff-templates
-      (setq git-cliff-templates
-            (append (git-cliff--template-locate git-cliff-extra-path
-                                                'git-cliff-template-extra)
-                    (git-cliff--template-locate (expand-file-name
+(defun git-cliff--presets ()
+  "Return a list of git-cliff config presets."
+  (or git-cliff-presets
+      (setq git-cliff-presets
+            (append (git-cliff--preset-locate git-cliff-extra-path
+                                                'git-cliff-preset-extra)
+                    (git-cliff--preset-locate (expand-file-name
                                                  "presets/"
                                                  (file-name-directory (locate-library
                                                                        "git-cliff")))
-                                                'git-cliff-template-preset)))))
+                                                'git-cliff-preset-preset)))))
 
 ;; SEE https://emacs.stackexchange.com/a/8177/35676
-(defun git-cliff--templates-comletion-table ()
-  "Return completion table for git-cliff templates."
+(defun git-cliff--presets-comletion-table ()
+  "Return completion table for git-cliff presets config."
   (lambda (string pred action)
     (if (eq action 'metadata)
         `(metadata (display-sort-function . ,#'identity))
       (complete-with-action
        action
-       (if git-cliff-enable-presets
-           (git-cliff--templates)
+       (if git-cliff-enable-examples
+           (git-cliff--presets)
          (seq-filter (lambda (x)
                        (face-equal (get-text-property (- (length x) 1) 'face x)
-                                   'git-cliff-template-extra))
-                     (git-cliff--templates)))
+                                   'git-cliff-preset-extra))
+                     (git-cliff--presets)))
        string
        pred))))
 
@@ -251,19 +251,19 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                            (shell-quote-argument cmd)
                            (string-join args " ")))))
 
-(transient-define-suffix git-cliff--choose-template ()
+(transient-define-suffix git-cliff--choose-preset ()
   (interactive)
   (let* ((default-directory (git-cliff--get-infix "--repository="))
          (local-config (car (git-cliff--config-locate default-directory)))
          backup)
     (when (or (not local-config)
               (setq backup (yes-or-no-p "File exist, continue?")))
-      (when-let* ((template
+      (when-let* ((preset
                    (completing-read
-                    "Select a template: "
-                    (git-cliff--templates-comletion-table)
+                    "Select a preset: "
+                    (git-cliff--presets-comletion-table)
                     nil t))
-                  (newname (concat "cliff." (file-name-extension template))))
+                  (newname (concat "cliff." (file-name-extension preset))))
         ;; kill buffer and rename file
         (when backup
           (when-let ((buf (get-file-buffer local-config)))
@@ -273,7 +273,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                 (kill-buffer))))
           (rename-file local-config
                        (concat local-config (format-time-string "-%Y%m%d%H%M%S"))))
-        (copy-file template newname)
+        (copy-file preset newname)
         ;; update config var if initialized woth preset
         (setq-local git-cliff--config newname)
         (find-file newname)))))
@@ -354,9 +354,9 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
    [["Run"
      ("r" "Run command" git-cliff--run)]
     ["Other"
-     ("c" "Choose template" git-cliff--choose-template)
-     ("o" "Open changelog"  git-cliff--open-changelog)
-     ("e" "Edit config"     git-cliff--edit-config)]]])
+     ("c" "Choose preset"  git-cliff--choose-preset)
+     ("o" "Open changelog" git-cliff--open-changelog)
+     ("e" "Edit config"    git-cliff--edit-config)]]])
 
 (provide 'git-cliff)
 ;;; git-cliff.el ends here
