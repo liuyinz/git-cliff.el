@@ -96,7 +96,8 @@
 (defun git-cliff--set-repository (prompt &rest _)
   "Read and set repository paths of git-cliff with PROMPT."
   (when-let ((new (read-directory-name
-                   prompt (or (git-cliff--get-infix "--repository=") default-directory)
+                   prompt (or (git-cliff--get-infix "--repository=")
+                              default-directory)
                    nil t)))
     (setq-local git-cliff--repository (expand-file-name new))))
 
@@ -165,7 +166,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 (defun git-cliff--preset-locate (dir face)
   "Return a list of presets DIR propertized in FACE."
   (mapcar (lambda (x)
-            (concat (propertize (file-name-directory x) 'face 'font-lock-comment-face)
+            (concat (propertize (file-name-directory x)
+                                'face 'font-lock-comment-face)
                     (propertize (file-name-nondirectory x) 'face face)))
           (git-cliff--config-locate dir t "\\.\\(to\\|ya\\)ml\\'")))
 
@@ -173,13 +175,13 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   "Return a list of git-cliff config presets."
   (or git-cliff-presets
       (setq git-cliff-presets
-            (append (git-cliff--preset-locate git-cliff-extra-path
-                                                'git-cliff-preset-extra)
-                    (git-cliff--preset-locate (expand-file-name
-                                                 "presets/"
-                                                 (file-name-directory (locate-library
-                                                                       "git-cliff")))
-                                                'git-cliff-preset-preset)))))
+            (append (git-cliff--preset-locate
+                     git-cliff-extra-path 'git-cliff-preset-extra)
+                    (git-cliff--preset-locate
+                     (expand-file-name "presets/"
+                                       (file-name-directory (locate-library
+                                                             "git-cliff")))
+                     'git-cliff-preset-preset)))))
 
 ;; SEE https://emacs.stackexchange.com/a/8177/35676
 (defun git-cliff--presets-comletion-table ()
@@ -271,7 +273,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                 (save-buffer)
                 (kill-buffer))))
           (rename-file local-config
-                       (concat local-config (format-time-string "-%Y%m%d%H%M%S"))))
+                       (concat local-config (format-time-string
+                                             "-%Y%m%d%H%M%S"))))
         (copy-file preset newname)
         ;; update config var if initialized woth preset
         (setq-local git-cliff--config newname)
