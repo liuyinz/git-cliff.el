@@ -316,7 +316,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
             (propertize "Status" 'face 'transient-heading)
             (propertize "current dir :" 'face 'font-lock-variable-name-face)
             (propertize dir 'face 'transient-pink)
-            (propertize "latest tag  :" 'face 'font-lock-variable-name-face)
+            (propertize "latest  tag :" 'face 'font-lock-variable-name-face)
             (propertize tag 'face 'transient-pink))))
 
 ;;;###autoload
