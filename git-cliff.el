@@ -79,7 +79,7 @@
          (dir (expand-file-name dir)))
     (if (string-prefix-p dir filename)
         (file-relative-name filename dir)
-      filename)))
+      (abbreviate-file-name filename))))
 
 ;; repo
 (defvar-local git-cliff--repository nil
@@ -89,8 +89,7 @@
   "Return the git repositorypath if exists."
   (or git-cliff--repository
       (setq git-cliff--repository
-            (ignore-errors (expand-file-name (locate-dominating-file
-                                              (buffer-file-name) ".git"))))))
+            (ignore-errors (locate-dominating-file (buffer-file-name) ".git")))))
 
 ;; TODO select one or more repository under workdir
 (defun git-cliff--set-repository (prompt &rest _)
@@ -99,7 +98,7 @@
                    prompt (or (git-cliff--get-infix "--repository=")
                               default-directory)
                    nil t)))
-    (setq-local git-cliff--repository (expand-file-name new))))
+    (setq-local git-cliff--repository new)))
 
 ;; workdir
 (defvar-local git-cliff--workdir nil
@@ -116,7 +115,7 @@
                    (or (git-cliff--get-infix "--workdir=")
                        default-directory)
                    nil t)))
-    (setq-local git-cliff--workdir (expand-file-name new))))
+    (setq-local git-cliff--workdir new)))
 
 ;; config
 (defun git-cliff--config-locate (dir &optional full regexp)
@@ -124,7 +123,10 @@
 If FULL is non-nil, return absolute path, otherwise relative path according to
 DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 `git-cliff-config-regexp'."
-  (delq nil (directory-files dir full (or regexp git-cliff-config-regexp))))
+  (ignore-errors
+    (mapcar #'abbreviate-file-name
+            (delq nil (directory-files
+                       dir full (or regexp git-cliff-config-regexp))))))
 
 (defun git-cliff--config-global ()
   "Return global config file path of git-cliff if exists."
@@ -178,9 +180,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
             (append (git-cliff--preset-locate
                      git-cliff-extra-path 'git-cliff-preset-extra)
                     (git-cliff--preset-locate
-                     (expand-file-name "presets/"
-                                       (file-name-directory (locate-library
-                                                             "git-cliff")))
+                     (concat (file-name-directory (locate-library "git-cliff"))
+                             "presets/")
                      'git-cliff-preset-preset)))))
 
 ;; SEE https://emacs.stackexchange.com/a/8177/35676
@@ -250,7 +251,9 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     (when (member "--init" args) (setq-local git-cliff--config "cliff.toml"))
     (shell-command (format "%s %s"
                            (shell-quote-argument cmd)
-                           (string-join args " ")))))
+                           (replace-regexp-in-string "--[[:alnum:]-]+\\(=\\).+?" " "
+                                                     (string-join args " ")
+                                                     nil nil 1)))))
 
 (transient-define-suffix git-cliff--choose-preset ()
   (interactive)
