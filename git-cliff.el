@@ -60,7 +60,7 @@
   '((t (:inherit font-lock-constant-face)))
   "Face for git-cliff extra presets defined by user.")
 
-(defvar git-cliff-config-regexp "\\`cliff\\.\\(to\\|ya\\)ml\\'"
+(defconst git-cliff-config-regexp "\\`cliff\\.\\(to\\|ya\\)ml\\'"
   "Regexp for matching git-cliff config file.")
 
 (defvar git-cliff-presets nil
