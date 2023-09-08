@@ -251,6 +251,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     (when (member "--init" args) (setq-local git-cliff--config "cliff.toml"))
     (shell-command (format "%s %s"
                            (shell-quote-argument cmd)
+                           ;; ISSUE https://github.com/orhun/git-cliff/issues/266
+                           ;; install version larger than v.1.3.0
                            (replace-regexp-in-string "--[[:alnum:]-]+\\(=\\).+?" " "
                                                      (string-join args " ")
                                                      nil nil 1)))))
