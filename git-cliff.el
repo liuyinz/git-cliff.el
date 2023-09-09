@@ -245,7 +245,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   (interactive (list (transient-args 'git-cliff-menu)))
   (let* ((cmd (executable-find "git-cliff"))
          ;; (dry-run (not (transient-arg-value "-output=" flags)))
-         (shell-command-dont-erase-buffer 'beg-last-out))
+         (shell-command-dont-erase-buffer 'beg-last-out)
+         (shell-command-buffer-name "*git-cliff-preview.md"))
     (unless cmd (user-error "Cannot find git-cliff in PATH"))
     ;; update config var if initialized with default config
     (when (member "--init" args) (setq-local git-cliff--config "cliff.toml"))
