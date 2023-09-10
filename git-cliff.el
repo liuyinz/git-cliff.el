@@ -47,8 +47,8 @@
   :type 'boolean
   :group 'git-cliff)
 
-(defcustom git-cliff-extra-path nil
-  "Directory storing user defined configs for choosing preset."
+(defcustom git-cliff-extra-dir nil
+  "Directory storing user defined config presets and body templates."
   :type 'string
   :group 'git-cliff)
 
@@ -63,11 +63,22 @@
 (defconst git-cliff-config-regexp "\\`cliff\\.\\(to\\|ya\\)ml\\'"
   "Regexp for matching git-cliff config file.")
 
+(defconst git-cliff-example-dir (expand-file-name
+                                 "examples/"
+                                 (file-name-directory (locate-library "git-cliff")))
+  "Directory for storing default presets and templates.")
+
 (defvar git-cliff-presets nil
   "Presets available for git-cliff.")
 
+(defvar git-cliff-templates nil
+  "Templates available for git-cliff.")
+
 (defvar-local git-cliff--config nil
   "Configuration file of current working directory in git-cliff.")
+
+(defvar-local git-cliff--body nil
+  "Body template of current working directory in git-cliff.")
 
 (defun git-cliff--get-infix (infix)
   "Return the value of INFIX in current `git-cliff-menu'."
@@ -80,6 +91,24 @@
     (if (string-prefix-p dir filename)
         (file-relative-name filename dir)
       (abbreviate-file-name filename))))
+
+(defun git-cliff--locate (dir &optional full regexp)
+  "Return a list of git cliff config or templates in DIR.
+If FULL is non-nil, return absolute path, otherwise relative path according to
+DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
+`git-cliff-config-regexp'."
+  (ignore-errors
+    (mapcar #'abbreviate-file-name
+            (delq nil (directory-files
+                       dir full (or regexp git-cliff-config-regexp))))))
+
+(defun git-cliff--propertize (dir regexp face)
+  "Return a list of file paths match REGEXP  in DIR propertized in FACE."
+  (mapcar (lambda (x)
+            (concat (propertize (file-name-directory x)
+                                'face 'font-lock-comment-face)
+                    (propertize (file-name-nondirectory x) 'face face)))
+          (git-cliff--locate dir t regexp)))
 
 ;; repo
 (defvar-local git-cliff--repository nil
@@ -118,20 +147,10 @@
     (setq-local git-cliff--workdir new)))
 
 ;; config
-(defun git-cliff--config-locate (dir &optional full regexp)
-  "Return a list of git cliff config files in DIR.
-If FULL is non-nil, return absolute path, otherwise relative path according to
-DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
-`git-cliff-config-regexp'."
-  (ignore-errors
-    (mapcar #'abbreviate-file-name
-            (delq nil (directory-files
-                       dir full (or regexp git-cliff-config-regexp))))))
-
 (defun git-cliff--config-global ()
   "Return global config file path of git-cliff if exists."
   (ignore-errors
-    (car (git-cliff--config-locate
+    (car (git-cliff--locate
           (convert-standard-filename
            (concat (getenv "HOME")
                    (cl-case system-type
@@ -142,7 +161,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 
 (defun git-cliff--configs ()
   "Return a list of git-cliff configs available for current working directory."
-  (delq nil (append (git-cliff--config-locate (git-cliff--repository))
+  (delq nil (append (git-cliff--locate (git-cliff--repository))
                     (list (git-cliff--config-global)))))
 
 (defun git-cliff--config ()
@@ -157,49 +176,57 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                    (git-cliff--configs))))
     (setq git-cliff--config new)))
 
+(defun git-cliff--set-body (prompt &rest _)
+  "Read and set body template with PROMPT."
+  (when-let ((new (completing-read
+                   prompt
+                   (git-cliff--completion-table 'template) nil t)))
+    (setq git-cliff--body new)))
+
 (defun git-cliff--set-changelog (prompt &rest _)
   "Read and set chanelog file for current working directory with PROMPT."
   (completing-read prompt '("CHANGELOG.md" "CHANGELOG.json")))
 
-;;TODO
+;;TODO support range arg
 ;; (defun git-cliff--set-range (prompt &rest _)
 ;;   "Read and set commits range for git-cliff with PROMPT."  )
-
-(defun git-cliff--preset-locate (dir face)
-  "Return a list of presets DIR propertized in FACE."
-  (mapcar (lambda (x)
-            (concat (propertize (file-name-directory x)
-                                'face 'font-lock-comment-face)
-                    (propertize (file-name-nondirectory x) 'face face)))
-          (git-cliff--config-locate dir t "\\.\\(to\\|ya\\)ml\\'")))
 
 (defun git-cliff--presets ()
   "Return a list of git-cliff config presets."
   (or git-cliff-presets
       (setq git-cliff-presets
-            (append (git-cliff--preset-locate
-                     git-cliff-extra-path 'git-cliff-extra)
-                    (git-cliff--preset-locate
-                     (concat (file-name-directory (locate-library "git-cliff"))
-                             "examples/")
-                     'git-cliff-example)))))
+            (let ((regexp "\\.\\(to\\|ya\\)ml\\'"))
+              (append (git-cliff--propertize
+                       git-cliff-extra-dir regexp 'git-cliff-extra)
+                      (git-cliff--propertize
+                       git-cliff-example-dir regexp 'git-cliff-example))))))
+
+(defun git-cliff--templates ()
+  "Return a list of git-cliff body templates."
+  (or git-cliff-templates
+      (setq git-cliff-templates
+            (let ((regexp "\\.tera\\'"))
+              (append (git-cliff--propertize
+                       git-cliff-extra-dir regexp 'git-cliff-extra)
+                      (git-cliff--propertize
+                       git-cliff-example-dir regexp 'git-cliff-example))))))
 
 ;; SEE https://emacs.stackexchange.com/a/8177/35676
-(defun git-cliff--presets-comletion-table ()
-  "Return completion table for git-cliff presets config."
+(defun git-cliff--completion-table (type)
+  "Return completion table for TYPE."
   (lambda (string pred action)
     (if (eq action 'metadata)
         `(metadata (display-sort-function . ,#'identity))
       (complete-with-action
        action
-       (if git-cliff-enable-examples
-           (git-cliff--presets)
-         (seq-filter (lambda (x)
-                       (face-equal (get-text-property (- (length x) 1) 'face x)
-                                   'git-cliff-extra))
-                     (git-cliff--presets)))
-       string
-       pred))))
+       (seq-filter (lambda (x)
+                     (or git-cliff-enable-examples
+                         (face-equal (get-text-property (- (length x) 1) 'face x)
+                                     'git-cliff-extra)))
+                   (if (eq type 'preset)
+                       (git-cliff--presets)
+                     (git-cliff--templates)))
+       string pred))))
 
 (transient-define-argument git-cliff--range-switch ()
   :class 'transient-switches
@@ -241,34 +268,57 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   :prompt "Set config: "
   :reader #'git-cliff--set-config)
 
+(transient-define-argument git-cliff--body-arg ()
+  :argument "--body="
+  :class 'transient-option
+  ;; :always-read t
+  ;; :allow-empty nil
+  ;; :init-value (lambda (obj) (oset obj value (git-cliff--config)))
+  :prompt "Set body template: "
+  :reader #'git-cliff--set-body)
+
 (transient-define-suffix git-cliff--run (args)
   (interactive (list (transient-args 'git-cliff-menu)))
   (let* ((cmd (executable-find "git-cliff"))
-         ;; (dry-run (not (transient-arg-value "-output=" flags)))
          (shell-command-dont-erase-buffer 'beg-last-out)
          (shell-command-buffer-name "*git-cliff-preview.md"))
     (unless cmd (user-error "Cannot find git-cliff in PATH"))
     ;; update config var if initialized with default config
-    (when (member "--init" args) (setq-local git-cliff--config "cliff.toml"))
-    (shell-command (format "%s %s"
-                           (shell-quote-argument cmd)
-                           ;; ISSUE https://github.com/orhun/git-cliff/issues/266
-                           ;; install version larger than v.1.3.0
-                           (replace-regexp-in-string "--[[:alnum:]-]+\\(=\\).+?" " "
-                                                     (string-join args " ")
-                                                     nil nil 1)))))
+    (when (git-cliff--get-infix "--init") (setq-local git-cliff--config "cliff.toml"))
+    (when-let* ((template (git-cliff--get-infix "--body=")))
+      (cl-nsubstitute
+       (concat "--body="
+               (shell-quote-argument
+                ;; NOTE replace new line
+                (replace-regexp-in-string
+                 "\\\\n" "\n"
+                 ;; NOTE replace line continuation
+                 (replace-regexp-in-string
+                  "\\\\\n\s*" ""
+                  (with-temp-buffer
+                    (insert-file-contents-literally template)
+                    (buffer-string))
+                  nil t)
+                 nil t)))
+       (concat "--body=" template) args :test #'string-equal))
+    ;; ISSUE https://github.com/orhun/git-cliff/issues/266
+    ;; install version larger than v.1.3.0 or build from source
+    (setq args (replace-regexp-in-string "--[[:alnum:]-]+\\(=\\).+?"
+                                         " " (string-join args " ")
+                                         nil nil 1))
+    (shell-command (format "%s %s" cmd args))))
 
 (transient-define-suffix git-cliff--choose-preset ()
   (interactive)
   (let* ((default-directory (git-cliff--get-infix "--repository="))
-         (local-config (car (git-cliff--config-locate default-directory)))
+         (local-config (car (git-cliff--locate default-directory)))
          backup)
     (when (or (not local-config)
               (setq backup (yes-or-no-p "File exist, continue?")))
       (when-let* ((preset
                    (completing-read
                     "Select a preset: "
-                    (git-cliff--presets-comletion-table)
+                    (git-cliff--completion-table 'preset)
                     nil t))
                   (newname (concat "cliff." (file-name-extension preset))))
         ;; kill buffer and rename file
@@ -353,7 +403,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
      :choices ("oldest" "newest"))
     ("-I" "Set path to include related commits" "--include-path=")
     ("-E" "Set path to exclude related commits" "--exclude-path=")
-    ("-b" "Set template for changelog body" "--body=")
+    ("-b" "Set template for changelog body" git-cliff--body-arg)
     ("-s" "Strip the given parts from changelog" "--strip="
      :choices ("header" "footer" "all"))]
    ;; TODO implement range args
