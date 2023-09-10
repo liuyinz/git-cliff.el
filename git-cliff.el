@@ -52,13 +52,13 @@
   :type 'string
   :group 'git-cliff)
 
-(defface git-cliff-preset-example
+(defface git-cliff-example
   '((t (:inherit font-lock-function-name-face)))
-  "Face for git-cliff examples preset set by default.")
+  "Face for git-cliff examples files set by default.")
 
-(defface git-cliff-preset-extra
+(defface git-cliff-extra
   '((t (:inherit font-lock-constant-face)))
-  "Face for git-cliff extra presets defined by user.")
+  "Face for git-cliff extra files defined by user.")
 
 (defconst git-cliff-config-regexp "\\`cliff\\.\\(to\\|ya\\)ml\\'"
   "Regexp for matching git-cliff config file.")
@@ -178,11 +178,11 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   (or git-cliff-presets
       (setq git-cliff-presets
             (append (git-cliff--preset-locate
-                     git-cliff-extra-path 'git-cliff-preset-extra)
+                     git-cliff-extra-path 'git-cliff-extra)
                     (git-cliff--preset-locate
                      (concat (file-name-directory (locate-library "git-cliff"))
-                             "presets/")
-                     'git-cliff-preset-preset)))))
+                             "examples/")
+                     'git-cliff-example)))))
 
 ;; SEE https://emacs.stackexchange.com/a/8177/35676
 (defun git-cliff--presets-comletion-table ()
@@ -196,7 +196,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
            (git-cliff--presets)
          (seq-filter (lambda (x)
                        (face-equal (get-text-property (- (length x) 1) 'face x)
-                                   'git-cliff-preset-extra))
+                                   'git-cliff-extra))
                      (git-cliff--presets)))
        string
        pred))))
