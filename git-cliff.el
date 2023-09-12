@@ -280,7 +280,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 (transient-define-suffix git-cliff--run (args)
   (interactive (list (transient-args 'git-cliff-menu)))
   (let* ((cmd (executable-find "git-cliff"))
-         (shell-command-dont-erase-buffer 'beg-last-out)
+         (shell-command-dont-erase-buffer 'erase)
          (shell-command-buffer-name "*git-cliff-preview.md"))
     (unless cmd (user-error "Cannot find git-cliff in PATH"))
     ;; update config var if initialized with default config
