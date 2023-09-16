@@ -85,7 +85,7 @@
   (transient-arg-value infix (transient-args 'git-cliff-menu)))
 
 (defun git-cliff--relative-path (filename dir)
-  "Rconvert FILENAME to relative path if it's inside in DIR, otherwise return."
+  "Convert FILENAME to relative path if it's inside in DIR, otherwise return."
   (let* ((filename (expand-file-name filename))
          (dir (expand-file-name dir)))
     (if (string-prefix-p dir filename)
@@ -115,7 +115,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   "Current git repository root directory in git-cliff.")
 
 (defun git-cliff--repository ()
-  "Return the git repositorypath if exists."
+  "Return the git repository path if exists."
   (or git-cliff--repository
       (setq git-cliff--repository
             (ignore-errors (locate-dominating-file (buffer-file-name) ".git")))))
@@ -184,7 +184,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     (setq git-cliff--body new)))
 
 (defun git-cliff--set-changelog (prompt &rest _)
-  "Read and set chanelog file for current working directory with PROMPT."
+  "Read and set changelog file for current working directory with PROMPT."
   (completing-read prompt '("CHANGELOG.md" "CHANGELOG.json")))
 
 ;;TODO support range arg
@@ -242,8 +242,6 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 (transient-define-argument git-cliff--workdir-arg ()
   :argument "--workdir="
   :class 'transient-option
-  ;; :always-read t
-  ;; :allow-empty nil
   :init-value (lambda (obj) (oset obj value git-cliff--workdir))
   :prompt "Set workdir: "
   :reader #'git-cliff--set-workdir)
@@ -271,9 +269,6 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 (transient-define-argument git-cliff--body-arg ()
   :argument "--body="
   :class 'transient-option
-  ;; :always-read t
-  ;; :allow-empty nil
-  ;; :init-value (lambda (obj) (oset obj value (git-cliff--config)))
   :prompt "Set body template: "
   :reader #'git-cliff--set-body)
 
@@ -302,7 +297,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                  nil t)))
        (concat "--body=" template) args :test #'string-equal))
     ;; ISSUE https://github.com/orhun/git-cliff/issues/266
-    ;; install version larger than v.1.3.0 or build from source
+    ;; install newer version than v.1.3.0 or build from source
     (setq args (replace-regexp-in-string "--[[:alnum:]-]+\\(=\\).+?"
                                          " " (string-join args " ")
                                          nil nil 1))
@@ -332,7 +327,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                        (concat local-config (format-time-string
                                              "-%Y%m%d%H%M%S"))))
         (copy-file preset newname)
-        ;; update config var if initialized woth preset
+        ;; update config var if initialized with preset
         (setq-local git-cliff--config newname)
         (find-file newname)))))
 
