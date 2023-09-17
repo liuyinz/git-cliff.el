@@ -72,9 +72,8 @@
 (defconst git-cliff-config-regexp "\\`cliff\\.\\(to\\|ya\\)ml\\'"
   "Regexp for matching git-cliff config file.")
 
-(defconst git-cliff-example-dir (expand-file-name
-                                 "examples/"
-                                 (file-name-directory (locate-library "git-cliff")))
+(defconst git-cliff-example-dir
+  (expand-file-name "examples" (file-name-directory load-file-name))
   "Directory for storing default presets and templates.")
 
 (defvar git-cliff-presets nil
