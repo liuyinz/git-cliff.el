@@ -224,7 +224,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                      (git-cliff--templates)))
        string pred))))
 
-(transient-define-argument git-cliff--range-switch ()
+(transient-define-argument git-cliff--tag-switch ()
   :class 'transient-switches
   :argument-format "--%s"
   :argument-regexp "\\(--\\(latest\\|current\\|unreleased\\)\\)"
@@ -387,7 +387,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ("-i" "Init default config" ("-i" "--init"))
     ("-T" "Sort the tags topologically" "--topo-order")
     ("-j" "Print changelog context as JSON" "--context")
-    ("-l" "Set commits range quick" git-cliff--range-switch)]
+    ("-l" "Processes commits from tag" git-cliff--tag-switch)]
    ["Options"
     :pad-keys t
     ("-w" "Set working directory" git-cliff--workdir-arg)
