@@ -37,6 +37,7 @@
 
 (require 'cl-lib)
 (require 'transient)
+(declare-function 'markdown-view-mode "markdown-mode")
 
 (defgroup git-cliff nil
   "Generate changelog based on git-cliff."
@@ -275,11 +276,15 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 (transient-define-suffix git-cliff--run (args)
   (interactive (list (transient-args 'git-cliff-menu)))
   (let* ((cmd (executable-find "git-cliff"))
+         (default-directory (git-cliff--get-infix "--repository="))
+         (is-init (git-cliff--get-infix "--init"))
+         (is-json (git-cliff--get-infix "--context"))
          (shell-command-dont-erase-buffer 'erase)
-         (shell-command-buffer-name "*git-cliff-preview.md"))
+         (shell-command-buffer-name (concat "*git-cliff-preview."
+                                            (if is-json "json" "md"))))
     (unless cmd (user-error "Cannot find git-cliff in PATH"))
     ;; update config var if initialized with default config
-    (when (git-cliff--get-infix "--init") (setq-local git-cliff--config "cliff.toml"))
+    (and is-init (setq-local git-cliff--config "cliff.toml"))
     (when-let* ((template (git-cliff--get-infix "--body=")))
       (cl-nsubstitute
        (concat "--body="
@@ -301,7 +306,15 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     (setq args (replace-regexp-in-string "--[[:alnum:]-]+\\(=\\).+?"
                                          " " (string-join args " ")
                                          nil nil 1))
-    (shell-command (format "%s %s" cmd args))))
+    (when (zerop (shell-command (format "%s %s" cmd args)))
+      (if-let ((file (or (and is-init "cliff.toml")
+                         (or (git-cliff--get-infix "--output=")
+                             (git-cliff--get-infix "--prepend=")))))
+          (find-file-other-window file)
+        (switch-to-buffer-other-window shell-command-buffer-name))
+      (and (not is-json) (not is-init)
+           (fboundp 'markdown-view-mode)
+           (markdown-view-mode)))))
 
 (transient-define-suffix git-cliff--choose-preset ()
   (interactive)
