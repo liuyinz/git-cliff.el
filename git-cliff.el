@@ -237,19 +237,19 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   :argument-regexp "\\(--\\(latest\\|current\\|unreleased\\)\\)"
   :choices '("latest" "current" "unreleased"))
 
-;; (transient-define-argument git-cliff--range-arg ()
+;; (transient-define-argument git-cliff--arg-range ()
 ;;   :argument "--="
 ;;   :prompt "Limit to commits: "
 ;;   :reader #'git-cliff--set-range)
 
-(transient-define-argument git-cliff--workdir-arg ()
+(transient-define-argument git-cliff--arg-workdir ()
   :argument "--workdir="
   :class 'transient-option
   :init-value (lambda (obj) (oset obj value git-cliff--workdir))
   :prompt "Set workdir: "
   :reader #'git-cliff--set-workdir)
 
-(transient-define-argument git-cliff--repository-arg ()
+(transient-define-argument git-cliff--arg-repository ()
   :argument "--repository="
   :class 'transient-option
   :always-read t
@@ -260,7 +260,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   :prompt "Set repository : "
   :reader #'git-cliff--set-repository)
 
-(transient-define-argument git-cliff--config-arg ()
+(transient-define-argument git-cliff--arg-config ()
   :argument "--config="
   :class 'transient-option
   :always-read t
@@ -269,7 +269,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   :prompt "Set config: "
   :reader #'git-cliff--set-config)
 
-(transient-define-argument git-cliff--body-arg ()
+(transient-define-argument git-cliff--arg-body ()
   :argument "--body="
   :class 'transient-option
   :prompt "Set body template: "
@@ -397,9 +397,9 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ("-l" "Processes commits from tag" git-cliff--tag-switch)]
    ["Options"
     :pad-keys t
-    ("-w" "Set working directory" git-cliff--workdir-arg)
-    ("-r" "Set git repository" git-cliff--repository-arg)
-    ("-c" "Set config file" git-cliff--config-arg)
+    ("-w" "Set working directory" git-cliff--arg-workdir)
+    ("-r" "Set git repository" git-cliff--arg-repository)
+    ("-c" "Set config file" git-cliff--arg-config)
     ("-t" "Set tag of latest version" "--tag=")
     ("-m" "Set custom commit messages to include in changelog" "--with-commit=")
     ("-o" "Generate new changelog" "--output="
@@ -413,12 +413,12 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
      :choices ("oldest" "newest"))
     ("-I" "Set path to include related commits" "--include-path=")
     ("-E" "Set path to exclude related commits" "--exclude-path=")
-    ("-b" "Set template for changelog body" git-cliff--body-arg)
+    ("-b" "Set template for changelog body" git-cliff--arg-body)
     ("-s" "Strip the given parts from changelog" "--strip="
      :choices ("header" "footer" "all"))]
    ;; TODO implement range args
    ;; ["Range"
-   ;;  ("--" "Limit to commits" git-cliff--range-arg)]
+   ;;  ("--" "Limit to commits" git-cliff--arg-range)]
    [["Run"
      ("r" "Run command" git-cliff--run)]
     ["Other"
