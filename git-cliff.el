@@ -104,12 +104,17 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                        dir full (or regexp git-cliff-config-regexp))))))
 
 (defun git-cliff--propertize (dir regexp face)
-  "Return a list of file paths match REGEXP  in DIR propertized in FACE."
+  "Return a list of file paths match REGEXP in DIR propertized in FACE."
   (mapcar (lambda (x)
             (concat (propertize (file-name-directory x)
                                 'face 'font-lock-comment-face)
                     (propertize (file-name-nondirectory x) 'face face)))
           (git-cliff--locate dir t regexp)))
+
+(defun git-cliff--extract (regexp)
+  "Return a list of file paths match REGEXP."
+  (append (git-cliff--propertize git-cliff-extra-dir regexp 'git-cliff-extra)
+          (git-cliff--propertize git-cliff-example-dir regexp 'git-cliff-example)))
 
 ;; repo
 (defvar-local git-cliff--repository nil
@@ -195,22 +200,12 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 (defun git-cliff--presets ()
   "Return a list of git-cliff config presets."
   (or git-cliff-presets
-      (setq git-cliff-presets
-            (let ((regexp "\\.\\(to\\|ya\\)ml\\'"))
-              (append (git-cliff--propertize
-                       git-cliff-extra-dir regexp 'git-cliff-extra)
-                      (git-cliff--propertize
-                       git-cliff-example-dir regexp 'git-cliff-example))))))
+      (setq git-cliff-presets (git-cliff--extract "\\.\\(to\\|ya\\)ml\\'"))))
 
 (defun git-cliff--templates ()
   "Return a list of git-cliff body templates."
   (or git-cliff-templates
-      (setq git-cliff-templates
-            (let ((regexp "\\.tera\\'"))
-              (append (git-cliff--propertize
-                       git-cliff-extra-dir regexp 'git-cliff-extra)
-                      (git-cliff--propertize
-                       git-cliff-example-dir regexp 'git-cliff-example))))))
+      (setq git-cliff-presets (git-cliff--extract "\\.tera\\'"))))
 
 ;; SEE https://emacs.stackexchange.com/a/8177/35676
 (defun git-cliff--completion-table (type)
