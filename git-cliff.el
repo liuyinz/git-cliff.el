@@ -37,11 +37,19 @@
 
 (require 'cl-lib)
 (require 'transient)
+(require 'lisp-mnt)
+
 (declare-function 'markdown-view-mode "markdown-mode")
 
 (defgroup git-cliff nil
   "Generate changelog based on git-cliff."
-  :group 'git-cliff)
+  :prefix "git-cliff-"
+  :group 'git-cliff
+  :link '(url-link :tag "Github" "https://github.com/liuyinz/git-cliff"))
+
+(defconst git-cliff-version
+  (lm-version (or load-file-name buffer-file-name))
+  "The current version of `git-cliff.el'.")
 
 (defcustom git-cliff-enable-examples t
   "If non-nil, configs in examples directory are included as presets."
