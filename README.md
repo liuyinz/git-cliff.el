@@ -74,6 +74,7 @@ Clone and add to `load-path`, require the package.
 
 ## Todo
 
+- [ ] support range arguments
 - [ ] support dir-locals variable
 - [ ] support multi-value in option
 
