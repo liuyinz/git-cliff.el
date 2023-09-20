@@ -38,6 +38,7 @@
 (require 'cl-lib)
 (require 'transient)
 (require 'lisp-mnt)
+(require 'crm)
 
 (declare-function 'markdown-view-mode "markdown-mode")
 
@@ -200,9 +201,21 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   "Read and set changelog file for current working directory with PROMPT."
   (completing-read prompt '("CHANGELOG.md" "CHANGELOG.json")))
 
-;;TODO support range arg
-;; (defun git-cliff--set-range (prompt &rest _)
-;;   "Read and set commits range for git-cliff with PROMPT."  )
+(defun git-cliff--set-range (prompt &rest _)
+  "Read and set commits range for git-cliff with PROMPT."
+  (let* ((crm-separator "\\.\\.")
+         (gitdir (expand-file-name ".git" (git-cliff--get-infix "--repository=")))
+         (rev (completing-read-multiple
+               prompt
+               (nconc (split-string (shell-command-to-string
+                                     "git for-each-ref --format=\"%(refname:short)\"")
+                                    "\n" t)
+                      (seq-filter (lambda (name)
+                                    (file-exists-p (expand-file-name name gitdir)))
+                                  '("HEAD" "ORIG_HEAD" "FETCH_HEAD"
+                                    "MERGE_HEAD" "CHERRY_PICK_HEAD"))))))
+
+    (and rev (concat (car rev) ".." (cadr rev)))))
 
 (defun git-cliff--presets ()
   "Return a list of git-cliff config presets."
@@ -237,10 +250,12 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   :argument-regexp "\\(--\\(latest\\|current\\|unreleased\\)\\)"
   :choices '("latest" "current" "unreleased"))
 
-;; (transient-define-argument git-cliff--arg-range ()
-;;   :argument "--="
-;;   :prompt "Limit to commits: "
-;;   :reader #'git-cliff--set-range)
+(transient-define-argument git-cliff--arg-range ()
+  :argument "--="
+  :prompt "Limit to commits: "
+  :class 'transient-option
+  :always-read nil
+  :reader #'git-cliff--set-range)
 
 (transient-define-argument git-cliff--arg-workdir ()
   :argument "--workdir="
@@ -305,7 +320,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
        (concat "--body=" template) args :test #'string-equal))
     ;; ISSUE https://github.com/orhun/git-cliff/issues/266
     ;; install newer version than v.1.3.0 or build from source
-    (setq args (replace-regexp-in-string "--[[:alnum:]-]+\\(=\\).+?"
+    (setq args (replace-regexp-in-string "--[[:alnum:]-]*\\(=\\).+?"
                                          " " (string-join args " ")
                                          nil nil 1))
     (when (zerop (shell-command (format "%s %s" cmd args)))
@@ -418,9 +433,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ("-b" "Set template for changelog body" git-cliff--arg-body)
     ("-s" "Strip the given parts from changelog" "--strip="
      :choices ("header" "footer" "all"))]
-   ;; TODO implement range args
-   ;; ["Range"
-   ;;  ("--" "Limit to commits" git-cliff--arg-range)]
+   ["Range"
+    ("--" "Limit to commits" git-cliff--arg-range)]
    [["Run"
      ("r" "Run command" git-cliff--run)]
     ["Other"
