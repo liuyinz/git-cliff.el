@@ -190,6 +190,39 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                    (git-cliff--configs))))
     (setq git-cliff--config new)))
 
+(defun git-cliff--tag-latest ()
+  "Return name of latest tag info in local repository if exists."
+  (if-let ((default-directory (git-cliff--get-infix "--repository="))
+           (rev (shell-command-to-string "git rev-list --tags --max-count=1")))
+      (if (string-empty-p rev)
+          "No tag"
+        (unless (string-prefix-p "fatal: not a git repository" rev)
+          (string-trim (shell-command-to-string
+                        (format "git describe --tags %s" rev)))))
+    "Not git repo"))
+
+(defun git-cliff--tag-bump ()
+  "Return a list of bumped tags if latest tag match major.minor.patch style."
+  (let ((latest (git-cliff--tag-latest))
+        (regexp "^\\([[:alpha:]]+\\)?\\([0-9]+\\)\\.\\([0-9]+\\)\\.\\([0-9]+\\)"))
+    (save-match-data
+      (when (string-match regexp latest)
+        (let ((prefix (match-string 1 latest))
+              (base (cl-loop for i from 2 to 4
+                             collect (string-to-number (match-string i latest)))))
+          (mapcar (lambda (x)
+                    (concat prefix (string-join (mapcar #'number-to-string x) ".")))
+                  (list (list (nth 0 base)(nth 1 base) (1+ (nth 2 base)))
+                        (list (nth 0 base) (1+ (nth 1 base)) 0)
+                        (list (1+ (nth 0 base)) 0 0))))))))
+
+(defun git-cliff--set-tag (prompt &rest _)
+  "Read and set unreleased tag with PROMPT."
+  (and-let* ((new (completing-read
+                   prompt
+                   (git-cliff--tag-bump))))
+    new))
+
 (defun git-cliff--set-body (prompt &rest _)
   "Read and set body template with PROMPT."
   (when-let ((new (completing-read
@@ -284,6 +317,14 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   :prompt "Set config: "
   :reader #'git-cliff--set-config)
 
+(transient-define-argument git-cliff--arg-tag ()
+  :argument "--tag="
+  :class 'transient-option
+  :always-read nil
+  :allow-empty t
+  :prompt "Set tag: "
+  :reader #'git-cliff--set-tag)
+
 (transient-define-argument git-cliff--arg-body ()
   :argument "--body="
   :class 'transient-option
@@ -377,21 +418,11 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
       (find-file-read-only name)
     (message "git-cliff: %s not exist!" name)))
 
-(defun git-cliff--get-latest-tag ()
-  "Return name of latest tag info in local repository if exists."
-  (if-let ((default-directory (git-cliff--get-infix "--repository="))
-           (rev (shell-command-to-string "git rev-list --tags --max-count=1")))
-      (if (string-empty-p rev)
-          "No tag"
-        (unless (string-prefix-p "fatal: not a git repository" rev)
-          (string-trim (shell-command-to-string
-                        (format "git describe --tags %s" rev)))))
-    "Not git repo"))
 
 (defun git-cliff-menu--header ()
   "Return a string to list dir and tag info as header."
   (let ((dir (ignore-errors (abbreviate-file-name (file-name-directory (buffer-file-name)))))
-        (tag (git-cliff--get-latest-tag)))
+        (tag (git-cliff--tag-latest)))
     (format "%s\n %s %s\n %s %s\n"
             (propertize "Status" 'face 'transient-heading)
             (propertize "current dir :" 'face 'font-lock-variable-name-face)
@@ -417,7 +448,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ("-w" "Set working directory" git-cliff--arg-workdir)
     ("-r" "Set git repository" git-cliff--arg-repository)
     ("-c" "Set config file" git-cliff--arg-config)
-    ("-t" "Set tag of latest version" "--tag=")
+    ("-t" "Set tag of unreleased version" git-cliff--arg-tag)
     ("-m" "Set custom commit messages to include in changelog" "--with-commit=")
     ("-o" "Generate new changelog" "--output="
      :prompt "Set output file: "
