@@ -364,21 +364,23 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 
 (defun git-cliff--get-latest-tag ()
   "Return name of latest tag info in local repository if exists."
-  (if-let* ((default-directory (git-cliff--get-infix "--repository="))
-            (rev (shell-command-to-string "git rev-list --tags --max-count=1")))
-      (if (string= rev "")
+  (if-let ((default-directory (git-cliff--get-infix "--repository="))
+           (rev (shell-command-to-string "git rev-list --tags --max-count=1")))
+      (if (string-empty-p rev)
           "No tag"
-        (string-trim (shell-command-to-string
-                      (format "git describe --tags %s" rev))))))
+        (unless (string-prefix-p "fatal: not a git repository" rev)
+          (string-trim (shell-command-to-string
+                        (format "git describe --tags %s" rev)))))
+    "Not git repo"))
 
 (defun git-cliff-menu--header ()
   "Return a string to list dir and tag info as header."
-  (let ((dir (abbreviate-file-name default-directory))
+  (let ((dir (ignore-errors (abbreviate-file-name (file-name-directory (buffer-file-name)))))
         (tag (git-cliff--get-latest-tag)))
     (format "%s\n %s %s\n %s %s\n"
             (propertize "Status" 'face 'transient-heading)
             (propertize "current dir :" 'face 'font-lock-variable-name-face)
-            (propertize dir 'face 'transient-pink)
+            (propertize (or dir "No dir") 'face 'transient-pink)
             (propertize "latest  tag :" 'face 'font-lock-variable-name-face)
             (propertize tag 'face 'transient-pink))))
 
