@@ -1,43 +1,54 @@
 # Changelog
 
-## [0.1.0](https://github.com/liuyinz/git-cliff.el/compare/v0.1.0..v0.1.0) - 2023-09-17
+## [0.2.0](https://github.com/liuyinz/git-cliff.el/compare/v0.1.0..v0.2.0) - 2023-09-20
 
 ### Bug Fixes
 
-- **(config)** update config var when add config file in repo - ([aecdda0](https://github.com/liuyinz/git-cliff.el/commit/aecdda075f01c83f9355edf6c742647aeee882d0))
-- **(preview)** erase content before preview new output - ([b9e4b9d](https://github.com/liuyinz/git-cliff.el/commit/b9e4b9dcf4459ae117e62a83ac9ec04f78b40f08))
-- get text property wrongly from completing-read return value - ([ed10163](https://github.com/liuyinz/git-cliff.el/commit/ed101632e6e3045c3a08287834762a26ffb487fe))
-- git-cliff--choose-template comletion sorting error - ([9c7c0dd](https://github.com/liuyinz/git-cliff.el/commit/9c7c0dde61867c66efefb9458056fe331e4a1826))
-- git-cliff--configs return wrong value - ([67dd663](https://github.com/liuyinz/git-cliff.el/commit/67dd6635ff4ea7a877deaf0d26dfbf7d778d2976))
-- do not set prepending as init state - ([873b8b8](https://github.com/liuyinz/git-cliff.el/commit/873b8b88e6c7705562fef7ea5719472321cd7b1c))
-- use repo dir instead of workdir as default-directory - ([67adf63](https://github.com/liuyinz/git-cliff.el/commit/67adf63e4bc2ea37e6adbbe8e1ae310ff6e49d03))
-- IO error path not found when args string contain --<option>=~ - ([14ca85a](https://github.com/liuyinz/git-cliff.el/commit/14ca85ac4ffa464824b006f4b6e54b1bc99d888e))
-- use defconst to define git-cliff-config-regexp - ([7acca02](https://github.com/liuyinz/git-cliff.el/commit/7acca02b7fc93bdf242822748ee56953680d8ac7))
-- set correct name for shell-command-buffer - ([82d9da2](https://github.com/liuyinz/git-cliff.el/commit/82d9da28793b8adc4fa288d8c9c671fff48658ad))
-- switch to target buffer after call git-cliff--run - ([84bca0f](https://github.com/liuyinz/git-cliff.el/commit/84bca0f63629dfaef744648ef449b325415d91ba))
-
-### Documentation
-
-- **(README)** update todo list - ([88532ae](https://github.com/liuyinz/git-cliff.el/commit/88532ae8ded2151e6acb0c9012ce3df3302fa3f1))
-- add README.md - ([f94fd7c](https://github.com/liuyinz/git-cliff.el/commit/f94fd7c6bed4a9dcc2d2baa2def1a130991d7a85))
+- **(status)** show status info correctly - ([d515263](https://github.com/liuyinz/git-cliff.el/commit/d5152634abfa0ca5a7708f4b0121ff4103583bff))
 
 ### Features
 
-- **(menu)** provide repo infomations in transient menu - ([04231e8](https://github.com/liuyinz/git-cliff.el/commit/04231e888ac20343a7fd05fce12e57aee075b3c5))
+- add var git-cliff-version - ([3d7e338](https://github.com/liuyinz/git-cliff.el/commit/3d7e338cc5808cd18e4e6f06cccee8114a00bf94))
+- support range feature - ([8844fe3](https://github.com/liuyinz/git-cliff.el/commit/8844fe3e1fc869e8f931c9bfaa48334bc95b2236))
+
+## [0.1.0] - 2023-09-20
+
+### Bug Fixes
+
+- **(config)** update config var when add config file in repo - ([99d63b0](https://github.com/liuyinz/git-cliff.el/commit/99d63b09be072497222b2faae9305ed04aabe9a2))
+- **(preview)** erase content before preview new output - ([4341899](https://github.com/liuyinz/git-cliff.el/commit/4341899fd9553f9c26ea6db5ff4050a293e86af1))
+- get text property wrongly from completing-read return value - ([ed10163](https://github.com/liuyinz/git-cliff.el/commit/ed101632e6e3045c3a08287834762a26ffb487fe))
+- git-cliff--choose-template completion sorting error - ([e81564c](https://github.com/liuyinz/git-cliff.el/commit/e81564cc703046f4059b2f97c5074474c8426490))
+- git-cliff--configs return wrong value - ([71f0e76](https://github.com/liuyinz/git-cliff.el/commit/71f0e76fc2998def11be2736022a075d46d6ced5))
+- do not set prepending as init state - ([1d95a09](https://github.com/liuyinz/git-cliff.el/commit/1d95a095c43bfa3ea55348e3257d2be80693aa6a))
+- use repo dir instead of workdir as default-directory - ([b2d40d9](https://github.com/liuyinz/git-cliff.el/commit/b2d40d9421c1f1ab347ac908ff71834353874471))
+- IO error path not found when args string contain --<option>=~ - ([877f3cb](https://github.com/liuyinz/git-cliff.el/commit/877f3cbcef90aa809135f9c12edb13005f2efcea))
+- use defconst to define git-cliff-config-regexp - ([f74cebb](https://github.com/liuyinz/git-cliff.el/commit/f74cebb618f710b5686d03228ecc7f0f0462ae77))
+- set correct name for shell-command-buffer - ([0371b6d](https://github.com/liuyinz/git-cliff.el/commit/0371b6d8e396813d6a4919bbbb63adee59c23010))
+- switch to target buffer after call git-cliff--run - ([817b640](https://github.com/liuyinz/git-cliff.el/commit/817b640d017fa8286f599f0f4c539e3fab445586))
+
+### Documentation
+
+- **(README)** update todo list - ([4a6775c](https://github.com/liuyinz/git-cliff.el/commit/4a6775c0644a89bfa0d75c06a5744d0caef8e7b1))
+- add README.md - ([9b84b29](https://github.com/liuyinz/git-cliff.el/commit/9b84b29d1aec5db299157cfc17c21babeb5fa915))
+
+### Features
+
+- **(menu)** provide repo infomations in transient menu - ([d445f2d](https://github.com/liuyinz/git-cliff.el/commit/d445f2dd728a6247c3e7aa4cd1126ffb74c62721))
 - **(preset)** add configs from git-cliff/examples - ([2bf85c3](https://github.com/liuyinz/git-cliff.el/commit/2bf85c30f347282bb949f9114f7174c04a585fd8))
 - **(transient)** add git-cliff-menu - ([fa6e0c5](https://github.com/liuyinz/git-cliff.el/commit/fa6e0c5b313b4b6deeaa00fef10082eb2927505e))
 - add related suffixes - ([1fd8383](https://github.com/liuyinz/git-cliff.el/commit/1fd83835b0911bfb94729fd03aeddd3725e6a614))
-- set default value for changelog reader - ([db5fccc](https://github.com/liuyinz/git-cliff.el/commit/db5fccc058ea6b7a0bc3b8b44080a30dcdcc79d2))
-- add option --repository - ([fdf80bb](https://github.com/liuyinz/git-cliff.el/commit/fdf80bba880e2076db00d9c6ef8a034402fe0596))
-- extract body templates to directory examples - ([408b0a5](https://github.com/liuyinz/git-cliff.el/commit/408b0a5240fa83f8911b6a346d213d710ba1413c))
-- support --body option - ([73a4ee6](https://github.com/liuyinz/git-cliff.el/commit/73a4ee609c0e1d13db1a1eb307f6219cab5a5b27))
+- set default value for changelog reader - ([c756131](https://github.com/liuyinz/git-cliff.el/commit/c7561318faa9e96735d1b5eb15fe36c68ccac241))
+- add option --repository - ([4fa4b10](https://github.com/liuyinz/git-cliff.el/commit/4fa4b103b883e2d994f40edfb69e80c4d2dfef77))
+- extract body templates to directory examples - ([86be222](https://github.com/liuyinz/git-cliff.el/commit/86be22296a5692253389ee2fa7ba6613147ed221))
+- support --body option - ([926723c](https://github.com/liuyinz/git-cliff.el/commit/926723cd840deee766bb834e8ddaf62eb936f8d2))
 
 ### Miscellaneous Chores
 
-- **(changelog)** update cliff config - ([61d2c0a](https://github.com/liuyinz/git-cliff.el/commit/61d2c0a8c8c9761e6eb7eef1f0a6a4ca4a144925))
-- **(ci)** update actions/checkout - ([e1d025f](https://github.com/liuyinz/git-cliff.el/commit/e1d025f2a7b1d5382388264615e66c9608848583))
+- **(changelog)** update cliff config - ([2b00e13](https://github.com/liuyinz/git-cliff.el/commit/2b00e1355a66d897bbd59563d861de237fa69e60))
+- **(ci)** update actions/checkout - ([d30e755](https://github.com/liuyinz/git-cliff.el/commit/d30e755edb9cbdd40048483a2db7b5a2fd9ad581))
 - **(gitignore)** ignore autoloads and tmp file - ([c0b7ad5](https://github.com/liuyinz/git-cliff.el/commit/c0b7ad52f9811868e35e39b305416554bc554069))
 - **(init)** initial commit - ([a75fcaa](https://github.com/liuyinz/git-cliff.el/commit/a75fcaa17e2983e3abce406da7415f9c4075378f))
-- add cliff.toml for generate changelog - ([003ca8e](https://github.com/liuyinz/git-cliff.el/commit/003ca8e88c34c6b0ae4b79eab947a506ceed7146))
+- add cliff.toml for generate changelog - ([435b3c1](https://github.com/liuyinz/git-cliff.el/commit/435b3c1c60c961f26b0147824d92b7e8723bacfc))
 
 <!-- generated by git-cliff -->
