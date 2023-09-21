@@ -54,11 +54,13 @@
 
 (defcustom git-cliff-enable-examples t
   "If non-nil, configs in examples directory are included as presets."
+  :package-version '(git-cliff . "0.1.0")
   :type 'boolean
   :group 'git-cliff)
 
 (defcustom git-cliff-extra-dir nil
   "Directory storing user defined config presets and body templates."
+  :package-version '(git-cliff . "0.1.0")
   :type 'string
   :group 'git-cliff)
 
