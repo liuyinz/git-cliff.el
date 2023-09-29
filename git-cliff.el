@@ -436,6 +436,10 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   (git-cliff--set 'unset)
   (transient--pp-to-file git-cliff-cache git-cliff-cache-file))
 
+(dolist (cmd '("run" "release" "choose-preset" "edit-config"
+               "open-changelog" "set" "save" "reset"))
+  (put (intern (concat "git-cliff--" cmd)) 'completion-predicate #'ignore))
+
 ;; HACK use advice to bind values from cache
 (defun git-cliff--preload (fn)
   "Load saved value before call FN."
