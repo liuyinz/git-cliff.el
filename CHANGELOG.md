@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/liuyinz/git-cliff.el/compare/v0.2.0..v0.3.0) - 2023-09-29
+
+### Features
+
+- **(tag)** support bumped tags to select - ([cb41871](https://github.com/liuyinz/git-cliff.el/commit/cb4187198db0f4a30f3355e53c9d78110eb56ecd))
+- support cache for git-cliff-menu per project - ([69a82ba](https://github.com/liuyinz/git-cliff.el/commit/69a82ba0fb449c13325df80611acf3e606221166))
+- add command git-cliff--release - ([51774cd](https://github.com/liuyinz/git-cliff.el/commit/51774cd9c83cc051c7dc5ae5e1d0d995f056af3a))
+
 ## [0.2.0](https://github.com/liuyinz/git-cliff.el/compare/v0.1.0..v0.2.0) - 2023-09-20
 
 ### Bug Fixes
