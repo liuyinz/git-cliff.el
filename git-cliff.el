@@ -114,8 +114,8 @@ should not change it manually.")
   (ignore-errors (locate-dominating-file (buffer-file-name) ".git")))
 
 (defun git-cliff--get-infix (infix)
-  "Return the value of INFIX in current `git-cliff-menu'."
-  (transient-arg-value infix (transient-args 'git-cliff-menu)))
+  "Return the value of INFIX in current active `git-cliff-menu'."
+  (transient-arg-value infix (transient-args transient-current-command)))
 
 ;; (defun git-cliff--relative-path (filename dir)
 ;;   "Convert FILENAME to relative path if it's inside in DIR, otherwise return."
