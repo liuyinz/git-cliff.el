@@ -276,13 +276,6 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
         dir
       (prog1 nil (message "Not git repo")))))
 
-;; (defun git-cliff--set-workdir (prompt &rest _)
-;;   "Read and set working directory path of git-cliff with PROMPT."
-;;   (read-directory-name prompt
-;;                        (or (git-cliff--get-infix "--workdir=")
-;;                            default-directory)
-;;                        nil t))
-
 (transient-define-argument git-cliff--arg-tag-switch ()
   :class 'transient-switches
   :argument-format "--%s"
@@ -295,12 +288,6 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   :class 'transient-option
   :always-read nil
   :reader #'git-cliff--set-range)
-
-;; (transient-define-argument git-cliff--arg-workdir ()
-;;   :argument "--workdir="
-;;   :class 'transient-option
-;;   :prompt "Set workdir: "
-;;   :reader #'git-cliff--set-workdir)
 
 (transient-define-argument git-cliff--arg-repository ()
   :argument "--repository="
@@ -483,7 +470,6 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ("-l" "Processes commits from tag" git-cliff--arg-tag-switch)]
    ["Options"
     :pad-keys t
-    ;; ("-w" "Set working directory" git-cliff--arg-workdir)
     ("-r" "Set git repository" git-cliff--arg-repository)
     ("-c" "Set config file" git-cliff--arg-config)
     ("-t" "Set tag of unreleased version" git-cliff--arg-tag)
