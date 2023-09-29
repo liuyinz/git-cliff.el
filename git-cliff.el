@@ -196,6 +196,20 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                      (git-cliff--templates)))
        string pred))))
 
+;; repository
+(defun git-cliff--set-repository (prompt &rest _)
+  "Read and set repository paths of git-cliff with PROMPT."
+  (when-let ((dir (read-directory-name prompt (git-cliff--default-directory t) nil t)))
+    (if (git-cliff--locate dir t "\\.git")
+        dir
+      (prog1 nil (message "Not git repo")))))
+
+(transient-define-argument git-cliff--arg-repository ()
+  :argument "--repository="
+  :class 'transient-option
+  :prompt "Set repository : "
+  :reader #'git-cliff--set-repository)
+
 ;; config
 (defun git-cliff--configs ()
   "Return a list of git-cliff configs available for current working directory."
@@ -212,6 +226,12 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 (defun git-cliff--set-config (prompt &rest _)
   "Read and set config file for current working directory with PROMPT."
   (completing-read prompt (git-cliff--configs)))
+
+(transient-define-argument git-cliff--arg-config ()
+  :argument "--config="
+  :class 'transient-option
+  :prompt "Set config: "
+  :reader #'git-cliff--set-config)
 
 ;; tag
 (defun git-cliff--tag-latest ()
@@ -240,66 +260,9 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                         (list (nth 0 base) (1+ (nth 1 base)) 0)
                         (list (1+ (nth 0 base)) 0 0))))))))
 
-;; readers
 (defun git-cliff--set-tag (prompt &rest _)
   "Read and set unreleased tag with PROMPT."
   (completing-read prompt (git-cliff--tag-bump)))
-
-(defun git-cliff--set-body (prompt &rest _)
-  "Read and set body template with PROMPT."
-  (completing-read prompt (git-cliff--completion-table 'template) nil t))
-
-(defun git-cliff--set-changelog (prompt &rest _)
-  "Read and set changelog file for current working directory with PROMPT."
-  (completing-read prompt '("CHANGELOG.md" "CHANGELOG.json")))
-
-(defun git-cliff--set-range (prompt &rest _)
-  "Read and set commits range for git-cliff with PROMPT."
-  (git-cliff-with-repo
-   (let* ((crm-separator "\\.\\.")
-          (rev (completing-read-multiple
-                prompt
-                (nconc (split-string (shell-command-to-string
-                                      "git for-each-ref --format=\"%(refname:short)\"")
-                                     "\n" t)
-                       (seq-filter (lambda (name)
-                                     (file-exists-p (expand-file-name (concat ".git/" name))))
-                                   '("HEAD" "ORIG_HEAD" "FETCH_HEAD"
-                                     "MERGE_HEAD" "CHERRY_PICK_HEAD"))))))
-
-     (and rev (concat (car rev) ".." (cadr rev))))))
-
-(defun git-cliff--set-repository (prompt &rest _)
-  "Read and set repository paths of git-cliff with PROMPT."
-  (when-let ((dir (read-directory-name prompt (git-cliff--default-directory t) nil t)))
-    (if (git-cliff--locate dir t "\\.git")
-        dir
-      (prog1 nil (message "Not git repo")))))
-
-(transient-define-argument git-cliff--arg-tag-switch ()
-  :class 'transient-switches
-  :argument-format "--%s"
-  :argument-regexp "\\(--\\(latest\\|current\\|unreleased\\)\\)"
-  :choices '("latest" "current" "unreleased"))
-
-(transient-define-argument git-cliff--arg-range ()
-  :argument "--="
-  :prompt "Limit to commits: "
-  :class 'transient-option
-  :always-read nil
-  :reader #'git-cliff--set-range)
-
-(transient-define-argument git-cliff--arg-repository ()
-  :argument "--repository="
-  :class 'transient-option
-  :prompt "Set repository : "
-  :reader #'git-cliff--set-repository)
-
-(transient-define-argument git-cliff--arg-config ()
-  :argument "--config="
-  :class 'transient-option
-  :prompt "Set config: "
-  :reader #'git-cliff--set-config)
 
 (transient-define-argument git-cliff--arg-tag ()
   :argument "--tag="
@@ -309,11 +272,52 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   :prompt "Set tag: "
   :reader #'git-cliff--set-tag)
 
+;; body
+(defun git-cliff--set-body (prompt &rest _)
+  "Read and set body template with PROMPT."
+  (completing-read prompt (git-cliff--completion-table 'template) nil t))
+
 (transient-define-argument git-cliff--arg-body ()
   :argument "--body="
   :class 'transient-option
   :prompt "Set body: "
   :reader #'git-cliff--set-body)
+
+;; range
+(transient-define-argument git-cliff--arg-tag-switch ()
+  :class 'transient-switches
+  :argument-format "--%s"
+  :argument-regexp "\\(--\\(latest\\|current\\|unreleased\\)\\)"
+  :choices '("latest" "current" "unreleased"))
+
+(defun git-cliff--set-range (prompt &rest _)
+  "Read and set commits range for git-cliff with PROMPT."
+  (git-cliff-with-repo
+   (let* ((crm-separator "\\.\\.")
+          (rev (completing-read-multiple
+                prompt
+                (nconc (split-string
+                        (shell-command-to-string
+                         "git for-each-ref --format=\"%(refname:short)\"")
+                        "\n" t)
+                       (seq-filter (lambda (name)
+                                     (file-exists-p
+                                      (expand-file-name (concat ".git/" name))))
+                                   '("HEAD" "ORIG_HEAD" "FETCH_HEAD"
+                                     "MERGE_HEAD" "CHERRY_PICK_HEAD"))))))
+     (and rev (concat (car rev) ".." (cadr rev))))))
+
+(transient-define-argument git-cliff--arg-range ()
+  :argument "--="
+  :prompt "Limit to commits: "
+  :class 'transient-option
+  :always-read nil
+  :reader #'git-cliff--set-range)
+
+;; changelog
+(defun git-cliff--set-changelog (prompt &rest _)
+  "Read and set changelog file for current working directory with PROMPT."
+  (completing-read prompt '("CHANGELOG.md" "CHANGELOG.json")))
 
 (transient-define-suffix git-cliff--run (args)
   (interactive (list (transient-args 'git-cliff-menu)))
@@ -436,10 +440,6 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   (git-cliff--set 'unset)
   (transient--pp-to-file git-cliff-cache git-cliff-cache-file))
 
-(dolist (cmd '("run" "release" "choose-preset" "edit-config"
-               "open-changelog" "set" "save" "reset"))
-  (put (intern (concat "git-cliff--" cmd)) 'completion-predicate #'ignore))
-
 ;; HACK use advice to bind values from cache
 (defun git-cliff--preload (fn)
   "Load saved value before call FN."
@@ -447,6 +447,10 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
          (cdr (assoc (git-cliff--get-repository) git-cliff-cache))))
     (funcall fn)))
 (advice-add 'git-cliff-menu :around #'git-cliff--preload)
+
+(dolist (cmd '("run" "release" "choose-preset" "edit-config"
+               "open-changelog" "set" "save" "reset"))
+  (put (intern (concat "git-cliff--" cmd)) 'completion-predicate #'ignore))
 
 (defun git-cliff-menu--header ()
   "Return a string to list dir and tag info as header."
@@ -477,7 +481,6 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ("-r" "Set git repository" git-cliff--arg-repository)
     ("-c" "Set config file" git-cliff--arg-config)
     ("-t" "Set tag of unreleased version" git-cliff--arg-tag)
-    ("-m" "Set custom commit messages to include in changelog" "--with-commit=")
     ("-o" "Generate new changelog" "--output="
      :prompt "Set output file: "
      :reader git-cliff--set-changelog)
@@ -487,9 +490,10 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ("-S" "Set commits order inside sections" "--sort="
      :always-read t
      :choices ("oldest" "newest"))
+    ("-b" "Set template for changelog body" git-cliff--arg-body)
+    ("-m" "Set custom commit messages to include in changelog" "--with-commit=")
     ("-I" "Set path to include related commits" "--include-path=")
     ("-E" "Set path to exclude related commits" "--exclude-path=")
-    ("-b" "Set template for changelog body" git-cliff--arg-body)
     ("-s" "Strip the given parts from changelog" "--strip="
      :choices ("header" "footer" "all"))]
    ["Range"
