@@ -300,7 +300,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
      (and rev (concat (car rev) ".." (cadr rev))))))
 
 (transient-define-argument git-cliff--arg-range ()
-  :argument "--="
+  :argument "-- "
   :prompt "Limit to commits: "
   :class 'transient-option
   :always-read nil
@@ -337,12 +337,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                    nil t)
                   nil t)))
         (concat "--body=" template) args :test #'string-equal))
-     ;; ISSUE https://github.com/orhun/git-cliff/issues/266
-     ;; install newer version than v.1.3.0 or build from source
-     (setq args (replace-regexp-in-string "--[[:alnum:]-]*\\(=\\).+?"
-                                          " " (string-join args " ")
-                                          nil nil 1))
-     (when (zerop (shell-command (format "%s %s" cmd args)))
+     (when (zerop (shell-command (format "%s %s" cmd (string-join args " "))))
        (if-let ((file (or (and is-init "cliff.toml")
                           (or (git-cliff--get-infix "--output=")
                               (git-cliff--get-infix "--prepend=")))))
