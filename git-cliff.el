@@ -117,14 +117,6 @@ should not change it manually.")
   "Return the value of INFIX in current active `git-cliff-menu'."
   (transient-arg-value infix (transient-args transient-current-command)))
 
-;; (defun git-cliff--relative-path (filename dir)
-;;   "Convert FILENAME to relative path if it's inside in DIR, otherwise return."
-;;   (let* ((filename (expand-file-name filename))
-;;          (dir (expand-file-name dir)))
-;;     (if (string-prefix-p dir filename)
-;;         (file-relative-name filename dir)
-;;       (abbreviate-file-name filename))))
-
 (defun git-cliff--get-changelog ()
   "Return changelog file name in repository."
   (or (and (null (git-cliff--get-infix "--context"))
@@ -429,7 +421,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
              (repo (git-cliff--get-repository)))
     (setf (alist-get (oref obj command)
                      (alist-get repo git-cliff-cache nil nil #'string-equal) nil unset)
-          (unless unset (transient-get-value)))))
+          (unless unset (transient-get-value)))
+    (message "git-cliff: values update")))
 
 (transient-define-suffix git-cliff--save ()
   "Save the value of `git-cliff-menu' in current repository across Emacs Session."
