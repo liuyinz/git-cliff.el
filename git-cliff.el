@@ -363,19 +363,22 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 (transient-define-suffix git-cliff--release ()
   (interactive)
   (git-cliff-with-repo
-   (if-let* ((name (git-cliff--get-changelog))
-             ((file-exists-p name))
-             ((member (vc-git-state name) '(edited unregistered))))
+   (if-let* ((file (git-cliff--get-changelog))
+             ((file-exists-p file))
+             ((member (vc-git-state file) '(edited unregistered))))
        (when-let ((tag (or (git-cliff--get-infix "--tag=")
                            (git-cliff--set-tag "tag to release: "))))
-         (shell-command
-          (format "git add %s;git commit -m \"%s\";git tag %s"
-                  name
-                  (read-from-minibuffer
-                   "commit message: "
-                   (format (or git-cliff-release-message "Release: %s") tag))
-                  tag)))
-     (message "%s not prepared yet." name))))
+         (when (zerop (shell-command
+                       (format "git add %s;git commit -m \"%s\";git tag %s"
+                               file
+                               (read-from-minibuffer
+                                "commit message: "
+                                (format (or git-cliff-release-message "Release: %s")
+                                        tag))
+                               tag)))
+           (find-file-other-window file)
+           (and (fboundp 'markdown-view-mode) (markdown-view-mode))))
+     (message "%s not prepared yet." file))))
 
 (transient-define-suffix git-cliff--choose-preset ()
   (interactive)
