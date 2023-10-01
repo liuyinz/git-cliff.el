@@ -1,12 +1,21 @@
 # Changelog
 
+## [0.3.1](https://github.com/liuyinz/git-cliff.el/compare/v0.3.0..v0.3.1) - 2023-10-01
+
+### Bug Fixes
+
+- exclude git-cliff--* commands in M-x completion - ([7b380a6](https://github.com/liuyinz/git-cliff.el/commit/7b380a61ed2fb7272f83980c9137aa1980562252))
+- get active infix value correctly - ([cbe9388](https://github.com/liuyinz/git-cliff.el/commit/cbe9388189461e652770aa789a97851d26a24b5b))
+- error when update git-cliff-templates - ([7702302](https://github.com/liuyinz/git-cliff.el/commit/770230205877cd574548e12af36edeb5aca97be5))
+- update git-cliff-menu when reset values - ([250c40d](https://github.com/liuyinz/git-cliff.el/commit/250c40d59a5fd55112db63e83d71d6a8e4397f5b))
+
 ## [0.3.0](https://github.com/liuyinz/git-cliff.el/compare/v0.2.0..v0.3.0) - 2023-09-29
 
 ### Features
 
 - **(tag)** support bumped tags to select - ([cb41871](https://github.com/liuyinz/git-cliff.el/commit/cb4187198db0f4a30f3355e53c9d78110eb56ecd))
 - support cache for git-cliff-menu per project - ([69a82ba](https://github.com/liuyinz/git-cliff.el/commit/69a82ba0fb449c13325df80611acf3e606221166))
-- add command git-cliff--release - ([51774cd](https://github.com/liuyinz/git-cliff.el/commit/51774cd9c83cc051c7dc5ae5e1d0d995f056af3a))
+- add command git-cliff--release - ([8173c43](https://github.com/liuyinz/git-cliff.el/commit/8173c43e271377039f4dfed727f690fbf106f98a))
 
 ## [0.2.0](https://github.com/liuyinz/git-cliff.el/compare/v0.1.0..v0.2.0) - 2023-09-20
 
