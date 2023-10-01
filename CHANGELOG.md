@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.2](https://github.com/liuyinz/git-cliff.el/compare/v0.3.1..v0.3.2) - 2023-10-01
+
+### Bug Fixes
+
+- display changelog after release new version - ([e8cedbb](https://github.com/liuyinz/git-cliff.el/commit/e8cedbb592fc3932f9bfb17fa32d63516be267d1))
+
 ## [0.3.1](https://github.com/liuyinz/git-cliff.el/compare/v0.3.0..v0.3.1) - 2023-10-01
 
 ### Bug Fixes
