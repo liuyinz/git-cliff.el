@@ -177,7 +177,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 (defun git-cliff--templates ()
   "Return a list of git-cliff body templates."
   (or git-cliff-templates
-      (setq git-cliff-presets (git-cliff--extract "\\.tera\\'"))))
+      (setq git-cliff-templates (git-cliff--extract "\\.tera\\'"))))
 
 ;; SEE https://emacs.stackexchange.com/a/8177/35676
 (defun git-cliff--completion-table (type)
