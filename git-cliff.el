@@ -117,13 +117,6 @@ should not change it manually.")
   "Return the value of INFIX in current active `git-cliff-menu'."
   (transient-arg-value infix (transient-args transient-current-command)))
 
-(defun git-cliff--get-changelog ()
-  "Return changelog file name in repository."
-  (or (and (null (git-cliff--get-infix "--context"))
-           (or (git-cliff--get-infix "--output=")
-               (git-cliff--get-infix "--prepend=")))
-      "CHANGELOG.md"))
-
 (defun git-cliff--default-directory (&optional default)
   "Return repository path as default directory.
 If optional DEFAULT is non-nil, use `default-directory' as fallback."
@@ -137,6 +130,22 @@ If optional DEFAULT is non-nil, use `default-directory' as fallback."
        (progn ,@body)
      (prog1 nil
        (message "git-cliff: couldn't find git repository."))))
+
+(defun git-cliff--get-changelog ()
+  "Return changelog file name in repository."
+  (git-cliff-with-repo
+   (and-let* ((file (or (and (null (git-cliff--get-infix "--context"))
+                             (or (git-cliff--get-infix "--output=")
+                                 (git-cliff--get-infix "--prepend=")))
+                        "CHANGELOG.md"))
+              (file-exists-p file)
+              file))))
+
+(defun git-cliff--render-changelog ()
+  "Render changelog file as possible."
+  (with-current-buffer (current-buffer)
+    (and (fboundp 'markdown-view-mode) (markdown-view-mode))
+    (read-only-mode 1)))
 
 (defun git-cliff--locate (dir &optional full regexp)
   "Return a list of git cliff config or templates in DIR.
@@ -343,15 +352,14 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                               (git-cliff--get-infix "--prepend=")))))
            (find-file-other-window file)
          (switch-to-buffer-other-window shell-command-buffer-name))
-       (and (not is-json) (not is-init)
-            (fboundp 'markdown-view-mode)
-            (markdown-view-mode))))))
+       (and (not is-json) (not is-init) (git-cliff--render-changelog))))))
 
 (transient-define-suffix git-cliff--release ()
+  "Release new version if changelog update.
+This command will commit all staged files by default."
   (interactive)
   (git-cliff-with-repo
    (if-let* ((file (git-cliff--get-changelog))
-             ((file-exists-p file))
              ((member (vc-git-state file) '(edited unregistered))))
        (when-let ((tag (or (git-cliff--get-infix "--tag=")
                            (git-cliff--set-tag "tag to release: "))))
@@ -363,8 +371,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                                 (format (or git-cliff-release-message "Release: %s")
                                         tag))
                                tag)))
-           (find-file-other-window file)
-           (and (fboundp 'markdown-view-mode) (markdown-view-mode))))
+           (git-cliff--open-changelog)))
      (message "%s not prepared yet." file))))
 
 (transient-define-suffix git-cliff--choose-preset ()
@@ -388,8 +395,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                  (save-buffer)
                  (kill-buffer))))
            (rename-file local-config
-                        (concat local-config (format-time-string
-                                              "-%Y%m%d%H%M%S"))))
+                        (concat local-config
+                                (format-time-string "-%Y%m%d%H%M%S"))))
          (copy-file preset newname)
          (find-file newname))))))
 
@@ -403,11 +410,10 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 
 (transient-define-suffix git-cliff--open-changelog ()
   (interactive)
-  (git-cliff-with-repo
-   (if-let* ((name (git-cliff--get-changelog))
-             ((file-exists-p name)))
-       (find-file-read-only name)
-     (message "git-cliff: %s not exist!" name))))
+  (if-let* ((file (git-cliff--get-changelog)))
+      (with-current-buffer (find-file-other-window file)
+        (git-cliff--render-changelog))
+    (message "git-cliff: %s not exist!" file)))
 
 (transient-define-suffix git-cliff--set (&optional unset)
   "Set the value of `git-cliff-run' in current repository during session."
@@ -492,14 +498,14 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
     ("--" "Limit to commits" git-cliff--arg-range)]
    [["Command"
      ("r" "Run command" git-cliff--run)
-     ("R" "Release version" git-cliff--release)]
+     ("v" "Release version" git-cliff--release)
+     ("c" "Choose preset"  git-cliff--choose-preset :transient t)
+     ("o" "Open changelog" git-cliff--open-changelog)
+     ("e" "Edit config"    git-cliff--edit-config)]
     ["Other"
      ("s" "Set values"     git-cliff--set :transient t)
      ("S" "Save values"    git-cliff--save :transient t)
-     ("x" "Reset values"   git-cliff--reset :transient t)
-     ("c" "Choose preset"  git-cliff--choose-preset :transient t)
-     ("o" "Open changelog" git-cliff--open-changelog)
-     ("e" "Edit config"    git-cliff--edit-config)]]])
+     ("x" "Reset values"   git-cliff--reset :transient t)]]])
 
 (provide 'git-cliff)
 ;;; git-cliff.el ends here
