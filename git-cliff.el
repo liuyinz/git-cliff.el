@@ -438,6 +438,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   "Reset the value of `git-cliff-menu' in current repository across Emacs Session."
   (interactive)
   (git-cliff--set 'unset)
+  (transient-setup 'git-cliff-menu)
   (transient--pp-to-file git-cliff-cache git-cliff-cache-file))
 
 ;; HACK use advice to bind values from cache
