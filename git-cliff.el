@@ -116,8 +116,8 @@
                              (or (git-cliff--get-infix "--output=")
                                  (git-cliff--get-infix "--prepend=")))
                         "CHANGELOG.md"))
-              (file-exists-p file)
-              file))))
+              (file-exists-p file))
+     file)))
 
 (defun git-cliff--render-changelog ()
   "Render changelog file as possible."
@@ -374,7 +374,8 @@ This command will commit all staged files by default."
 (transient-define-suffix git-cliff--edit-config ()
   (interactive)
   (git-cliff-with-repo
-   (if-let* ((path (git-cliff--get-infix "--config="))
+   (if-let* ((path (or (git-cliff--get-infix "--config=")
+                       (car (git-cliff--configs))))
              ((file-exists-p path)))
        (find-file path)
      (message "git-cliff: %s not exist!" path))))
