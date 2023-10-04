@@ -35,7 +35,7 @@ generate and update changelog for project. Call `git-cliff-menu` to start.
 ### dependencies
 
 - [git-cliff][git-cliff], version >= 1.3.1
-- emacs, version >= 26.3
+- emacs, version >= 27.1
 - transient
 
 ### package
@@ -76,7 +76,7 @@ Clone and add to `load-path`, require the package.
 
 - [x] support range arguments
 - [ ] support dir-locals variable
-- [ ] support multi-value in option
+- [ ] ~~support multi-value in option~~
 
 ## License
 
