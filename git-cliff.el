@@ -7,7 +7,7 @@
 ;; Version: 0.4.0
 ;; Package-Requires: ((emacs "27.1") (transient "0.4.3"))
 ;; Keywords: tools
-;; Homepage: https://github.com/liuyinz/git-cliff
+;; Homepage: https://github.com/liuyinz/git-cliff.el
 
 ;; This file is not a part of GNU Emacs.
 
@@ -47,7 +47,7 @@
   "Generate changelog based on git-cliff."
   :prefix "git-cliff-"
   :group 'git-cliff
-  :link '(url-link :tag "GitHub" "https://github.com/liuyinz/git-cliff"))
+  :link '(url-link :tag "GitHub" "https://github.com/liuyinz/git-cliff.el"))
 
 (defconst git-cliff-version
   (lm-version (or load-file-name buffer-file-name))

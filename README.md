@@ -83,4 +83,4 @@ Clone and add to `load-path`, require the package.
 See [LICENSE](LICENSE).
 
 [melpa]: http://melpa.org/#/git-cliff
-[git-cliff]: https://github.com/orhun/#it-cliff
+[git-cliff]: https://github.com/orhun/git-cliff
