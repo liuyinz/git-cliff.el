@@ -65,13 +65,6 @@
   :type 'string
   :group 'git-cliff)
 
-(defcustom git-cliff-cache-file
-  (locate-user-emacs-file "git-cliff-cache.el")
-  "File used to save cached values of git-cliff."
-  :package-version '(transient . "0.3.0")
-  :type 'file
-  :group 'git-cliff)
-
 (defcustom git-cliff-release-message "chore(version): release %s"
   "Commit message when release new version."
   :package-version '(git-cliff . "0.3.0")
@@ -94,14 +87,6 @@
   (expand-file-name "examples" (file-name-directory load-file-name))
   "Directory for storing default presets and templates.")
 
-;; ISSUE https://github.com/magit/transient/issues/189
-;; transient-values per project is under discussion
-(defvar git-cliff-cache
-  (transient--read-file-contents git-cliff-cache-file)
-  "Cached values of `git-cliff-menu'.
-The value of this variable persists between Emacs sessions and you usually
-should not change it manually.")
-
 (defvar git-cliff-presets nil
   "Presets available for git-cliff.")
 
@@ -109,24 +94,17 @@ should not change it manually.")
   "Templates available for git-cliff.")
 
 ;; functions
+(defun git-cliff--get-infix (infix)
+  "Return the value of INFIX in current active `git-cliff-menu'."
+  (transient-arg-value infix (transient-args 'git-cliff-menu)))
+
 (defun git-cliff--get-repository ()
   "Return git project path if exists."
   (ignore-errors (locate-dominating-file (buffer-file-name) ".git")))
 
-(defun git-cliff--get-infix (infix)
-  "Return the value of INFIX in current active `git-cliff-menu'."
-  (transient-arg-value infix (transient-args transient-current-command)))
-
-(defun git-cliff--default-directory (&optional default)
-  "Return repository path as default directory.
-If optional DEFAULT is non-nil, use `default-directory' as fallback."
-  (or (git-cliff--get-infix "--repository=")
-      (git-cliff--get-repository)
-      (and default default-directory)))
-
 (defmacro git-cliff-with-repo (&rest body)
   "Evaluate BODY if repository exists."
-  `(if-let ((default-directory (git-cliff--default-directory)))
+  `(if-let ((default-directory (git-cliff--get-repository)))
        (progn ,@body)
      (prog1 nil
        (message "git-cliff: couldn't find git repository."))))
@@ -197,20 +175,6 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                      (git-cliff--templates)))
        string pred))))
 
-;; repository
-(defun git-cliff--set-repository (prompt &rest _)
-  "Read and set repository paths of git-cliff with PROMPT."
-  (when-let ((dir (read-directory-name prompt (git-cliff--default-directory t) nil t)))
-    (if (git-cliff--locate dir t "\\.git")
-        dir
-      (prog1 nil (message "Not git repo")))))
-
-(transient-define-argument git-cliff--arg-repository ()
-  :argument "--repository="
-  :class 'transient-option
-  :prompt "Set repository : "
-  :reader #'git-cliff--set-repository)
-
 ;; config
 (defun git-cliff--configs ()
   "Return a list of git-cliff configs available for current working directory."
@@ -237,7 +201,7 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 ;; tag
 (defun git-cliff--tag-latest ()
   "Return name of latest tag info in local repository if exists."
-  (if-let ((default-directory (git-cliff--default-directory))
+  (if-let ((default-directory (git-cliff--get-repository))
            (rev (shell-command-to-string "git rev-list --tags --max-count=1")))
       (if (string-empty-p rev)
           "No tag"
@@ -415,39 +379,7 @@ This command will commit all staged files by default."
         (git-cliff--render-changelog))
     (message "git-cliff: %s not exist!" file)))
 
-(transient-define-suffix git-cliff--set (&optional unset)
-  "Set the value of `git-cliff-run' in current repository during session."
-  (interactive)
-  (when-let ((obj (or transient--prefix transient-current-prefix))
-             (repo (git-cliff--get-repository)))
-    (setf (alist-get (oref obj command)
-                     (alist-get repo git-cliff-cache nil nil #'string-equal) nil unset)
-          (unless unset (transient-get-value)))
-    (message "git-cliff: values update")))
-
-(transient-define-suffix git-cliff--save ()
-  "Save the value of `git-cliff-menu' in current repository across Emacs Session."
-  (interactive)
-  (git-cliff--set)
-  (transient--pp-to-file git-cliff-cache git-cliff-cache-file))
-
-(transient-define-suffix git-cliff--reset ()
-  "Reset the value of `git-cliff-menu' in current repository across Emacs Session."
-  (interactive)
-  (git-cliff--set 'unset)
-  (transient-setup 'git-cliff-menu)
-  (transient--pp-to-file git-cliff-cache git-cliff-cache-file))
-
-;; HACK use advice to bind values from cache
-(defun git-cliff--preload (fn)
-  "Load saved value before call FN."
-  (let ((transient-values
-         (cdr (assoc (git-cliff--get-repository) git-cliff-cache))))
-    (funcall fn)))
-(advice-add 'git-cliff-menu :around #'git-cliff--preload)
-
-(dolist (cmd '("run" "release" "choose-preset" "edit-config"
-               "open-changelog" "set" "save" "reset"))
+(dolist (cmd '("run" "release" "choose-preset" "edit-config" "open-changelog"))
   (put (intern (concat "git-cliff--" cmd)) 'completion-predicate #'ignore))
 
 (defun git-cliff-menu--header ()
@@ -476,7 +408,6 @@ This command will commit all staged files by default."
     ("-l" "Processes commits from tag" git-cliff--arg-tag-switch)]
    ["Options"
     :pad-keys t
-    ("-r" "Set git repository" git-cliff--arg-repository)
     ("-c" "Set config file" git-cliff--arg-config)
     ("-t" "Set tag of unreleased version" git-cliff--arg-tag)
     ("-o" "Generate new changelog" "--output="
@@ -497,15 +428,12 @@ This command will commit all staged files by default."
    ["Range"
     ("--" "Limit to commits" git-cliff--arg-range)]
    [["Command"
-     ("r" "Run command" git-cliff--run)
-     ("v" "Release version" git-cliff--release)
-     ("c" "Choose preset"  git-cliff--choose-preset :transient t)
-     ("o" "Open changelog" git-cliff--open-changelog)
-     ("e" "Edit config"    git-cliff--edit-config)]
+     ("r" "Run command"      git-cliff--run)
+     ("v" "Release version"  git-cliff--release)]
     ["Other"
-     ("s" "Set values"     git-cliff--set :transient t)
-     ("S" "Save values"    git-cliff--save :transient t)
-     ("x" "Reset values"   git-cliff--reset :transient t)]]])
+     ("c" "Choose preset"    git-cliff--choose-preset :transient t)
+     ("o" "Open changelog"   git-cliff--open-changelog)
+     ("e" "Edit config"      git-cliff--edit-config)]]])
 
 (provide 'git-cliff)
 ;;; git-cliff.el ends here
