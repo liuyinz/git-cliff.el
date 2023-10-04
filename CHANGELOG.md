@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.0](https://github.com/liuyinz/git-cliff.el/compare/v0.3.2..v0.4.0) - 2023-10-04
+
+### Miscellaneous Chores
+
+- **(changelog)** remove whitespace - ([c30a094](https://github.com/liuyinz/git-cliff.el/commit/c30a094f630424de19763f71f14a17fba9c84065))
+
+### Refactoring
+
+- **(menu)** [**breaking**] remove --repository and git-cliff cache mechanism - ([8347e26](https://github.com/liuyinz/git-cliff.el/commit/8347e26efafeb1387f5fb69bff20f574a4944ce1))
+
 ## [0.3.2](https://github.com/liuyinz/git-cliff.el/compare/v0.3.1..v0.3.2) - 2023-10-01
 
 ### Bug Fixes
