@@ -26,7 +26,7 @@ generate and update changelog for project. Call `git-cliff-menu` to start.
 
 ## Screenshot
 
-- Call `M-x git-cliff-menu*`
+- Call `M-x git-cliff-menu`
 
 ![git-cliff-menu](image/git-cliff-menu.jpg)
 
