@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.4.1](https://github.com/liuyinz/git-cliff.el/compare/v0.4.0..v0.4.1) - 2023-10-04
+
+### Bug Fixes
+
+- **(git-cliff--edit-config)** couldn't find config error - ([e7fc71a](https://github.com/liuyinz/git-cliff.el/commit/e7fc71a316b170c358b2b17b0936c1ef99218d6e))
+
+### Documentation
+
+- update screenshots - ([55be427](https://github.com/liuyinz/git-cliff.el/commit/55be427986d956d82a8c33e11c0facd99c4a64c4))
+- fix wrong url link - ([d5c4c62](https://github.com/liuyinz/git-cliff.el/commit/d5c4c62b47a1d6ed1494b92f3688623e9041f216))
+
+### Features
+
+- **(example)** add default config and template - ([42b44be](https://github.com/liuyinz/git-cliff.el/commit/42b44bec1ea398ce37c01b516f85fac7163b8273))
+
+### Miscellaneous Chores
+
+- **(dependency)** update dependency for emacs >=27.1 - ([93ebbf0](https://github.com/liuyinz/git-cliff.el/commit/93ebbf0ae180063e5808bb794f7c6436373aa058))
+
 ## [0.4.0](https://github.com/liuyinz/git-cliff.el/compare/v0.3.2..v0.4.0) - 2023-10-04
 
 ### Miscellaneous Chores
