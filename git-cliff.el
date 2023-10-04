@@ -127,8 +127,8 @@
 
 (defun git-cliff--locate (dir &optional full regexp)
   "Return a list of git cliff config or templates in DIR.
-If FULL is non-nil, return absolute path, otherwise relative path according to
-DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
+If FULL is non-nil, return absolute path, otherwise relative path according
+to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 `git-cliff-config-regexp'."
   (ignore-errors
     (mapcar #'abbreviate-file-name
@@ -145,8 +145,10 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 
 (defun git-cliff--extract (regexp)
   "Return a list of file paths match REGEXP."
-  (nconc (git-cliff--propertize git-cliff-extra-dir regexp 'git-cliff-extra)
-         (git-cliff--propertize git-cliff-example-dir regexp 'git-cliff-example)))
+  (nconc (git-cliff--propertize git-cliff-extra-dir regexp
+                                'git-cliff-extra)
+         (git-cliff--propertize git-cliff-example-dir regexp
+                                'git-cliff-example)))
 
 (defun git-cliff--presets ()
   "Return a list of git-cliff config presets."
@@ -168,7 +170,8 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
        action
        (seq-filter (lambda (x)
                      (or git-cliff-enable-examples
-                         (face-equal (get-text-property (- (length x) 1) 'face x)
+                         (face-equal (get-text-property (- (length x) 1)
+                                                        'face x)
                                      'git-cliff-extra)))
                    (if (eq type 'preset)
                        (git-cliff--presets)
@@ -213,14 +216,17 @@ DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 (defun git-cliff--tag-bump ()
   "Return a list of bumped tags if latest tag match major.minor.patch style."
   (let ((latest (git-cliff--tag-latest))
-        (regexp "^\\([[:alpha:]]+\\)?\\([0-9]+\\)\\.\\([0-9]+\\)\\.\\([0-9]+\\)"))
+        (regexp
+         "^\\([[:alpha:]]+\\)?\\([0-9]+\\)\\.\\([0-9]+\\)\\.\\([0-9]+\\)"))
     (save-match-data
       (when (string-match regexp latest)
         (let ((prefix (match-string 1 latest))
               (base (cl-loop for i from 2 to 4
-                             collect (string-to-number (match-string i latest)))))
+                             collect
+                             (string-to-number (match-string i latest)))))
           (mapcar (lambda (x)
-                    (concat prefix (string-join (mapcar #'number-to-string x) ".")))
+                    (concat prefix (string-join (mapcar #'number-to-string x)
+                                                ".")))
                   (list (list (nth 0 base)(nth 1 base) (1+ (nth 2 base)))
                         (list (nth 0 base) (1+ (nth 1 base)) 0)
                         (list (1+ (nth 0 base)) 0 0))))))))
@@ -332,7 +338,8 @@ This command will commit all staged files by default."
                                file
                                (read-from-minibuffer
                                 "commit message: "
-                                (format (or git-cliff-release-message "Release: %s")
+                                (format (or git-cliff-release-message
+                                            "Release: %s")
                                         tag))
                                tag)))
            (git-cliff--open-changelog)))
@@ -420,7 +427,7 @@ This command will commit all staged files by default."
      :always-read t
      :choices ("oldest" "newest"))
     ("-b" "Set template for changelog body" git-cliff--arg-body)
-    ("-m" "Set custom commit messages to include in changelog" "--with-commit=")
+    ("-m" "Set custom commit message to include in changelog" "--with-commit=")
     ("-I" "Set path to include related commits" "--include-path=")
     ("-E" "Set path to exclude related commits" "--exclude-path=")
     ("-s" "Strip the given parts from changelog" "--strip="
