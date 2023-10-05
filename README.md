@@ -20,6 +20,7 @@ generate and update changelog for project. Call `git-cliff-menu` to start.
   - [Usage](#usage)
   - [Customization](#customization)
   - [Todo](#todo)
+  - [FAQ](#faq)
   - [License](#license)
 
 <!-- markdown-toc end -->
@@ -75,6 +76,14 @@ Clone and add to `load-path`, require the package.
 ## Todo
 
 - [x] support range arguments
+
+## FAQ
+
+- no `--repository` and `--workdir` options support?
+
+  Actually in the earlier versions, both options are supported. However, `git-cliff-menu` is designed to run in the root dir 
+  of current repository by force, which means equivalent to `--workdir . --repository .` always. Due to same reason, multi-value of 
+  `--repository` is disabled either in `git-cliff.el`.
 
 ## License
 
