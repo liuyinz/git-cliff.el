@@ -68,15 +68,13 @@ Clone and add to `load-path`, require the package.
 
 ## Customization
 
-- `git-cliff-enable-examples` : whether configs in examples directory are included as presets
+- `git-cliff-enable-examples` : If non-nil, enable examples when choose presets and templates.
 
-- `git-cliff-extra-path` : directory storing user defined [configs](https://git-cliff.org/docs/configuration/) as presets
+- `git-cliff-extra-path` : directory storing user defined [presets](https://git-cliff.org/docs/configuration/) and templates.
 
 ## Todo
 
 - [x] support range arguments
-- [ ] support dir-locals variable
-- [ ] ~~support multi-value in option~~
 
 ## License
 
