@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.2](https://github.com/liuyinz/git-cliff.el/compare/v0.4.1..v0.4.2) - 2023-10-08
+
+### Documentation
+
+- **(README)** update customization and todos - ([0843ecd](https://github.com/liuyinz/git-cliff.el/commit/0843ecdb1f8762cb11764ef440067f08b363319c))
+- **(README)** add FAQ section - ([8849fe3](https://github.com/liuyinz/git-cliff.el/commit/8849fe38ed34ebeaf72eef03e21ee94d8ffe19df))
+- **(README)** update install info with melpa - ([d7f326f](https://github.com/liuyinz/git-cliff.el/commit/d7f326f081a2806826c7301063a29423b66aec28))
+
+### Miscellaneous Chores
+
+- **(test)** fix minor typos - ([281fe65](https://github.com/liuyinz/git-cliff.el/commit/281fe65c0d0fac2ce6e6261f1f419a2396276908))
+
 ## [0.4.1](https://github.com/liuyinz/git-cliff.el/compare/v0.4.0..v0.4.1) - 2023-10-04
 
 ### Bug Fixes
