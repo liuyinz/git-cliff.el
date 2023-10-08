@@ -74,6 +74,7 @@ This package is available on [MELPA]. Install with `M-x package-install` `RET` `
 ## Todo
 
 - [x] support range arguments
+- [ ] support .org format
 
 ## FAQ
 
