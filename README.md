@@ -47,9 +47,7 @@ Clone and add to `load-path`, require the package.
 
 - Melpa
 
-**WARNING** : Not available yet.
-
-~~This package is available on [MELPA]. Install with `M-x package-install` `RET` `git-cliff` within Emacs.~~
+This package is available on [MELPA]. Install with `M-x package-install` `RET` `git-cliff` within Emacs.
 
 ## Usage
 
