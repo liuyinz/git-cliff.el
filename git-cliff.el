@@ -439,7 +439,7 @@ This command will commit all staged files by default."
      ("r" "Run command"      git-cliff--run)
      ("v" "Release version"  git-cliff--release)]
     ["Other"
-     ("c" "Choose preset"    git-cliff--choose-preset :transient t)
+     ("c" "Choose preset"    git-cliff--choose-preset)
      ("o" "Open changelog"   git-cliff--open-changelog)
      ("e" "Edit config"      git-cliff--edit-config)]]])
 
