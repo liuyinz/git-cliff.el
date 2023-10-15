@@ -219,17 +219,18 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
         (regexp
          "^\\([[:alpha:]]+\\)?\\([0-9]+\\)\\.\\([0-9]+\\)\\.\\([0-9]+\\)"))
     (save-match-data
-      (when (string-match regexp latest)
-        (let ((prefix (match-string 1 latest))
-              (base (cl-loop for i from 2 to 4
-                             collect
-                             (string-to-number (match-string i latest)))))
-          (mapcar (lambda (x)
-                    (concat prefix (string-join (mapcar #'number-to-string x)
-                                                ".")))
-                  (list (list (nth 0 base)(nth 1 base) (1+ (nth 2 base)))
-                        (list (nth 0 base) (1+ (nth 1 base)) 0)
-                        (list (1+ (nth 0 base)) 0 0))))))))
+      (if (string-match regexp latest)
+          (let ((prefix (match-string 1 latest))
+                (base (cl-loop for i from 2 to 4
+                               collect
+                               (string-to-number (match-string i latest)))))
+            (mapcar (lambda (x)
+                      (concat prefix (string-join (mapcar #'number-to-string x)
+                                                  ".")))
+                    (list (list (nth 0 base)(nth 1 base) (1+ (nth 2 base)))
+                          (list (nth 0 base) (1+ (nth 1 base)) 0)
+                          (list (1+ (nth 0 base)) 0 0))))
+        (and (string-equal latest "No tag") (list "v0.1.0"))))))
 
 (defun git-cliff--set-tag (prompt &rest _)
   "Read and set unreleased tag with PROMPT."
