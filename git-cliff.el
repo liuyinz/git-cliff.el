@@ -383,10 +383,15 @@ This command will commit all staged files by default."
 
 (transient-define-suffix git-cliff--open-changelog ()
   (interactive)
-  (if-let* ((file (git-cliff--get-changelog)))
-      (with-current-buffer (find-file-other-window file)
-        (git-cliff--render-changelog))
-    (message "git-cliff: %s not exist!" file)))
+  (let* ((file (git-cliff--get-changelog))
+         (buf (and file (find-buffer-visiting file)))
+         (win (and buf (get-buffer-window buf))))
+    (cond
+     ((null file) (message "git-cliff: CHANGELOG.md not exist!"))
+     ((null buf) (find-file-other-window file))
+     ((null win) (switch-to-buffer-other-window buf))
+     (t (select-window win)))
+    (and file (git-cliff--render-changelog))))
 
 (dolist (cmd '("run" "release" "choose-preset" "edit-config" "open-changelog"))
   (put (intern (concat "git-cliff--" cmd)) 'completion-predicate #'ignore))
