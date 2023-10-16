@@ -411,7 +411,9 @@ This command will commit all staged files by default."
 ;;;###autoload
 (transient-define-prefix git-cliff-menu ()
   "Invoke command for `git-cliff'."
-  :incompatible '(("--output=" "--prepend="))
+  :incompatible '(("--output=" "--prepend=")
+                  ;; ("--bump" "-t")
+                  )
   [:description git-cliff-menu--header
    :class transient-subgroups
    ["Flags"
@@ -419,7 +421,10 @@ This command will commit all staged files by default."
     ("-i" "Init default config" ("-i" "--init"))
     ("-T" "Sort the tags topologically" "--topo-order")
     ("-j" "Print changelog context as JSON" "--context")
-    ("-l" "Processes commits from tag" git-cliff--arg-tag-switch)]
+    ("-l" "Processes commits from tag" git-cliff--arg-tag-switch)
+    ;; TODO implement --bump option after git-cliff new version release
+    ;; ("-B" "Bump version for unreleased" "--bump")
+    ]
    ["Options"
     :pad-keys t
     ("-c" "Set config file" git-cliff--arg-config)
