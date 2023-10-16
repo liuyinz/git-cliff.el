@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.3](https://github.com/liuyinz/git-cliff.el/compare/v0.4.2..v0.4.3) - 2023-10-16
+
+### Bug Fixes
+
+- close transient panel after choose preset - ([aa5f870](https://github.com/liuyinz/git-cliff.el/commit/aa5f8709e10c5864e3408489a34fafd20874063c))
+- provide v0.1.0 as first tag if no tag exist in repository - ([f05c042](https://github.com/liuyinz/git-cliff.el/commit/f05c0426cf4c3554d7c3d391e5dfe5ef01976a99))
+- do not open new window when changelog is already in display - ([0bfe02a](https://github.com/liuyinz/git-cliff.el/commit/0bfe02ad661aa2891899f9f264b8de3072defb41))
+
+### Documentation
+
+- **(README)** update todo list - ([551ac47](https://github.com/liuyinz/git-cliff.el/commit/551ac47f16f28e4f66afeb9af9b9198e09533ba8))
+
 ## [0.4.2](https://github.com/liuyinz/git-cliff.el/compare/v0.4.1..v0.4.2) - 2023-10-08
 
 ### Documentation
