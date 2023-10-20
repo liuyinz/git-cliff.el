@@ -101,7 +101,8 @@
 
 (defun git-cliff--get-repository ()
   "Return git project path if exists."
-  (ignore-errors (locate-dominating-file (buffer-file-name) ".git")))
+  (when-let ((file (buffer-file-name)))
+    (locate-dominating-file file ".git")))
 
 (defmacro git-cliff-with-repo (&rest body)
   "Evaluate BODY if repository exists."
@@ -131,10 +132,10 @@
 If FULL is non-nil, return absolute path, otherwise relative path according
 to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 `git-cliff-config-regexp'."
-  (ignore-errors
-    (mapcar #'abbreviate-file-name
-            (delq nil (directory-files
-                       dir full (or regexp git-cliff-config-regexp))))))
+  (and (file-exists-p dir)
+       (mapcar #'abbreviate-file-name
+               (delq nil (directory-files
+                          dir full (or regexp git-cliff-config-regexp))))))
 
 (defun git-cliff--propertize (dir regexp face)
   "Return a list of file paths match REGEXP in DIR propertized in FACE."
@@ -399,8 +400,8 @@ This command will commit all staged files by default."
 
 (defun git-cliff-menu--header ()
   "Return a string to list dir and tag info as header."
-  (let ((dir (ignore-errors (abbreviate-file-name
-                             (file-name-directory (buffer-file-name)))))
+  (let ((dir (and-let* ((file (buffer-file-name)))
+               (abbreviate-file-name (file-name-directory file))))
         (tag (git-cliff--tag-latest)))
     (format "%s\n %s %s\n %s %s\n"
             (propertize "Status" 'face 'transient-heading)
