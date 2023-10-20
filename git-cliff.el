@@ -62,7 +62,8 @@
 (defcustom git-cliff-extra-dir nil
   "Directory storing user defined config presets and body templates."
   :package-version '(git-cliff . "0.1.0")
-  :type 'string
+  :type '(choice (const :tag "no extra directory" nil)
+                 directory)
   :group 'git-cliff)
 
 (defcustom git-cliff-release-message "chore(version): release %s"
