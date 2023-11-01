@@ -215,7 +215,7 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                         (format "git describe --tags %s" rev)))))
     "Not git repo"))
 
-(defun git-cliff--tag-bump ()
+(defun git-cliff--tag-bumped ()
   "Return a list of bumped tags if latest tag match major.minor.patch style."
   (let ((latest (git-cliff--tag-latest))
         (regexp
@@ -236,7 +236,7 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 
 (defun git-cliff--set-tag (prompt &rest _)
   "Read and set unreleased tag with PROMPT."
-  (completing-read prompt (git-cliff--tag-bump)))
+  (completing-read prompt (git-cliff--tag-bumped)))
 
 (transient-define-argument git-cliff--arg-tag ()
   :argument "--tag="
@@ -414,8 +414,7 @@ This command will commit all staged files by default."
 (transient-define-prefix git-cliff-menu ()
   "Invoke command for `git-cliff'."
   :incompatible '(("--output=" "--prepend=")
-                  ;; ("--bump" "-t")
-                  )
+                  ("--bump" "--tag="))
   [:description git-cliff-menu--header
    :class transient-subgroups
    ["Flags"
@@ -424,8 +423,7 @@ This command will commit all staged files by default."
     ("-T" "Sort the tags topologically" "--topo-order")
     ("-j" "Print changelog context as JSON" "--context")
     ("-l" "Processes commits from tag" git-cliff--arg-tag-switch)
-    ;; TODO implement --bump option after git-cliff new version release
-    ;; ("-B" "Bump version for unreleased" "--bump")
+    ("-B" "Bump version for unreleased" "--bump")
     ]
    ["Options"
     :pad-keys t
