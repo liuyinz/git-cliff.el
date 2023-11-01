@@ -227,8 +227,7 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                                collect
                                (string-to-number (match-string i latest)))))
             (mapcar (lambda (x)
-                      (concat prefix (string-join (mapcar #'number-to-string x)
-                                                  ".")))
+                      (concat prefix (apply #'format `("%d.%d.%d" ,@x))))
                     (list (list (nth 0 base)(nth 1 base) (1+ (nth 2 base)))
                           (list (nth 0 base) (1+ (nth 1 base)) 0)
                           (list (1+ (nth 0 base)) 0 0))))
