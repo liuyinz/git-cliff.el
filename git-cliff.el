@@ -414,6 +414,8 @@ This command will commit all staged files by default."
   "Invoke command for `git-cliff'."
   :incompatible '(("--output=" "--prepend=")
                   ("--bump" "--tag="))
+  ;; ISSUE https://github.com/magit/transient/issues/226
+  ;; rewrite with `transient-information'
   [:description git-cliff-menu--header
    :class transient-subgroups
    ["Flags"
