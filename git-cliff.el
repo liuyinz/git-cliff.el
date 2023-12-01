@@ -5,7 +5,7 @@
 ;; Author: liuyinz <liuyinz95@gmail.com>
 ;; Maintainer: liuyinz <liuyinz95@gmail.com>
 ;; Version: 0.4.3
-;; Package-Requires: ((emacs "27.1") (transient "0.4.3"))
+;; Package-Requires: ((emacs "27.1") (transient "0.5.0"))
 ;; Keywords: tools
 ;; Homepage: https://github.com/liuyinz/git-cliff.el
 
@@ -36,10 +36,10 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'transient)
 (require 'lisp-mnt)
 (require 'crm)
 (require 'vc-git)
+(require 'transient)
 
 (declare-function 'markdown-view-mode "markdown-mode")
 
@@ -397,27 +397,22 @@ This command will commit all staged files by default."
 (dolist (cmd '("run" "release" "choose-preset" "edit-config" "open-changelog"))
   (put (intern (concat "git-cliff--" cmd)) 'completion-predicate #'ignore))
 
-(defun git-cliff-menu--header ()
-  "Return a string to list dir and tag info as header."
+(defun git-cliff--status ()
+  "Return info of the repository to display in menu."
   (let ((dir (and-let* ((file (buffer-file-name)))
-               (abbreviate-file-name (file-name-directory file))))
-        (tag (git-cliff--tag-latest)))
-    (format "%s\n %s %s\n %s %s\n"
-            (propertize "Status" 'face 'transient-heading)
-            (propertize "current dir :" 'face 'font-lock-variable-name-face)
+               (abbreviate-file-name (file-name-directory file)))))
+    (format "current dir : %s\n   latest  tag : %s\n"
             (propertize (or dir "No dir") 'face 'transient-pink)
-            (propertize "latest  tag :" 'face 'font-lock-variable-name-face)
-            (propertize tag 'face 'transient-pink))))
+            (propertize (git-cliff--tag-latest) 'face 'transient-pink))))
 
 ;;;###autoload (autoload 'git-cliff-menu "git-cliff" nil t)
 (transient-define-prefix git-cliff-menu ()
   "Invoke command for `git-cliff'."
   :incompatible '(("--output=" "--prepend=")
                   ("--bump" "--tag="))
-  ;; ISSUE https://github.com/magit/transient/issues/226
-  ;; rewrite with `transient-information'
-  [:description git-cliff-menu--header
-   :class transient-subgroups
+  [:class transient-subgroups
+   ["Status"
+    (:info #'git-cliff--status)]
    ["Flags"
     :pad-keys t
     ;; TODO support init= options, https://github.com/orhun/git-cliff/pull/370
