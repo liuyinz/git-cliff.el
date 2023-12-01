@@ -397,27 +397,23 @@ This command will commit all staged files by default."
 (dolist (cmd '("run" "release" "choose-preset" "edit-config" "open-changelog"))
   (put (intern (concat "git-cliff--" cmd)) 'completion-predicate #'ignore))
 
-(defun git-cliff-menu--header ()
-  "Return a string to list dir and tag info as header."
+(defun git-cliff--status ()
+  "Return info of the repository to display in menu."
   (let ((dir (and-let* ((file (buffer-file-name)))
-               (abbreviate-file-name (file-name-directory file))))
-        (tag (git-cliff--tag-latest)))
-    (format "%s\n %s %s\n %s %s\n"
-            (propertize "Status" 'face 'transient-heading)
-            (propertize "current dir :" 'face 'font-lock-variable-name-face)
+               (abbreviate-file-name (file-name-directory file)))))
+    (format "current dir : %s\n   latest  tag : %s\n"
             (propertize (or dir "No dir") 'face 'transient-pink)
-            (propertize "latest  tag :" 'face 'font-lock-variable-name-face)
-            (propertize tag 'face 'transient-pink))))
+            (propertize (git-cliff--tag-latest) 'face 'transient-pink))))
 
 ;;;###autoload
 (transient-define-prefix git-cliff-menu ()
   "Invoke command for `git-cliff'."
   :incompatible '(("--output=" "--prepend=")
                   ("--bump" "--tag="))
-  ;; ISSUE https://github.com/magit/transient/issues/226
-  ;; rewrite with `transient-information'
-  [:description git-cliff-menu--header
-   :class transient-subgroups
+  [:class transient-subgroups
+   ;; NOTE require transient version >=v0.5.0
+   ["Status"
+    (:info #'git-cliff--status :face transient-inactive-argument)]
    ["Flags"
     :pad-keys t
     ("-i" "Init default config" ("-i" "--init"))
