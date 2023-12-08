@@ -409,7 +409,7 @@ This command will commit all staged files by default."
             (propertize "latest  tag :" 'face 'font-lock-variable-name-face)
             (propertize tag 'face 'transient-pink))))
 
-;;;###autoload
+;;;###autoload (autoload 'git-cliff-menu "git-cliff" nil t)
 (transient-define-prefix git-cliff-menu ()
   "Invoke command for `git-cliff'."
   :incompatible '(("--output=" "--prepend=")
