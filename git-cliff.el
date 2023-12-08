@@ -420,6 +420,7 @@ This command will commit all staged files by default."
    :class transient-subgroups
    ["Flags"
     :pad-keys t
+    ;; TODO support init= options, https://github.com/orhun/git-cliff/pull/370
     ("-i" "Init default config" ("-i" "--init"))
     ("-T" "Sort the tags topologically" "--topo-order")
     ("-j" "Print changelog context as JSON" "--context")
