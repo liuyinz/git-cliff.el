@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.4](https://github.com/liuyinz/git-cliff.el/compare/v0.4.3..v0.4.4) - 2023-12-08
+
+### Bug Fixes
+
+- set right value type for defcustoms - ([c24a46c](https://github.com/liuyinz/git-cliff.el/commit/c24a46cdf39a2be00c946184611551d4ca75512c))
+- autoload command git-cliff-menu correctly - ([6bd365c](https://github.com/liuyinz/git-cliff.el/commit/6bd365c883f2ec68589818fdac6925185b8b2330))
+
+### Features
+
+- support --bump flag in git-cliff v1.4.0 - ([b6a8c67](https://github.com/liuyinz/git-cliff.el/commit/b6a8c67c8f7468554401f1c6fe0d000d3987c13b))
+
+### Miscellaneous Chores
+
+- **(dependency)** update git-cliff version >=1.4.0 - ([1bc9a48](https://github.com/liuyinz/git-cliff.el/commit/1bc9a48de2fa11be3c7474c606a509e28a9a4dc9))
+- **(dependency)** update transient version >=0.5.0 - ([b8244d2](https://github.com/liuyinz/git-cliff.el/commit/b8244d21136d5831e69724294099e298c962d41d))
+
 ## [0.4.3](https://github.com/liuyinz/git-cliff.el/compare/v0.4.2..v0.4.3) - 2023-10-16
 
 ### Bug Fixes
