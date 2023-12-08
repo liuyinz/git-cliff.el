@@ -37,7 +37,7 @@ generate and update changelog for project. Call `git-cliff-menu` to start.
 
 - [git-cliff][git-cliff], version >= 1.4.0
 - emacs, version >= 27.1
-- transient
+- transient >= 0.5.0
 
 ### package
 
