@@ -402,8 +402,8 @@ This command will commit all staged files by default."
   (let ((dir (and-let* ((file (buffer-file-name)))
                (abbreviate-file-name (file-name-directory file)))))
     (format "current dir : %s\n   latest  tag : %s\n"
-            (propertize (or dir "No dir") 'face 'transient-pink)
-            (propertize (git-cliff--tag-latest) 'face 'transient-pink))))
+            (propertize (or dir "No dir") 'face 'link-visited)
+            (propertize (git-cliff--tag-latest) 'face 'link-visited))))
 
 ;;;###autoload (autoload 'git-cliff-menu "git-cliff" nil t)
 (transient-define-prefix git-cliff-menu ()
