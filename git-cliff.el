@@ -154,13 +154,13 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 
 (defun git-cliff--presets ()
   "Return a list of git-cliff config presets."
-  (or git-cliff-presets
-      (setq git-cliff-presets (git-cliff--extract "\\.\\(to\\|ya\\)ml\\'"))))
+  (with-memoization git-cliff-presets
+    (git-cliff--extract "\\.\\(to\\|ya\\)ml\\'")))
 
 (defun git-cliff--templates ()
   "Return a list of git-cliff body templates."
-  (or git-cliff-templates
-      (setq git-cliff-templates (git-cliff--extract "\\.tera\\'"))))
+  (with-memoization git-cliff-templates
+    (git-cliff--extract "\\.tera\\'")))
 
 ;; SEE https://emacs.stackexchange.com/a/8177/35676
 (defun git-cliff--completion-table (type)
@@ -303,21 +303,21 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
                                              (if is-json "json" "md"))))
      (unless cmd (user-error "Cannot find git-cliff in PATH"))
      (when-let* ((template (git-cliff--get-infix "--body=")))
-       (cl-nsubstitute
-        (concat "--body="
-                (shell-quote-argument
-                 ;; NOTE replace new line
-                 (replace-regexp-in-string
-                  "\\\\n" "\n"
-                  ;; NOTE replace line continuation
-                  (replace-regexp-in-string
-                   "\\\\\n\s*" ""
-                   (with-temp-buffer
-                     (insert-file-contents-literally template)
-                     (buffer-string))
-                   nil t)
-                  nil t)))
-        (concat "--body=" template) args :test #'string-equal))
+       (setq args (cl-substitute
+                   (concat "--body="
+                           (shell-quote-argument
+                            ;; NOTE replace new line
+                            (replace-regexp-in-string
+                             "\\\\n" "\n"
+                             ;; NOTE replace line continuation
+                             (replace-regexp-in-string
+                              "\\\\\n\s*" ""
+                              (with-temp-buffer
+                                (insert-file-contents-literally template)
+                                (buffer-string))
+                              nil t)
+                             nil t)))
+                   (concat "--body=" template) args :test #'string-equal)))
      (when (zerop (shell-command (format "%s %s" cmd (string-join args " "))))
        (if-let ((file (or (and is-init "cliff.toml")
                           (or (git-cliff--get-infix "--output=")
@@ -344,7 +344,7 @@ This command will commit all staged files by default."
                                             "Release: %s")
                                         tag))
                                tag)))
-           (git-cliff--open-changelog)))
+           (call-interactively #'git-cliff--open-changelog)))
      (message "%s not prepared yet." file))))
 
 (transient-define-suffix git-cliff--choose-preset ()
