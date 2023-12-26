@@ -418,7 +418,7 @@ This command will commit all staged files by default."
     ;; TODO support init= options, https://github.com/orhun/git-cliff/pull/370
     ("-i" "Init default config" ("-i" "--init"))
     ("-T" "Sort the tags topologically" "--topo-order")
-    ("-j" "Print changelog context as JSON" "--context")
+    ("-x" "Print changelog context as JSON" "--context")
     ("-l" "Processes commits from tag" git-cliff--arg-tag-switch)
     ("-B" "Bump version for unreleased" "--bump")
     ]
