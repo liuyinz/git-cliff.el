@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.5](https://github.com/liuyinz/git-cliff.el/compare/v0.4.4..v0.4.5) - 2023-12-26
+
+### Bug Fixes
+
+- change short argument to -x for --context - ([122c249](https://github.com/liuyinz/git-cliff.el/commit/122c2499caed7f44c023f41a3970fb81a8173fdd))
+- use built-in face link-visited instead of deprecated transient-pink - ([fc58980](https://github.com/liuyinz/git-cliff.el/commit/fc589803a88edba9339a8b884818119f52b23e80))
+
+### Miscellaneous Chores
+
+- **(dependency)** require emacs version >= 29.1 - ([c5b107d](https://github.com/liuyinz/git-cliff.el/commit/c5b107d84d6ee7a7447f197426fee50ee123ef61))
+
 ## [0.4.4](https://github.com/liuyinz/git-cliff.el/compare/v0.4.3..v0.4.4) - 2023-12-08
 
 ### Bug Fixes
