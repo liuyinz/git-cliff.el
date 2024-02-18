@@ -53,6 +53,12 @@
   (lm-version (or load-file-name buffer-file-name))
   "The current version of `git-cliff.el'.")
 
+(defcustom git-cliff-executable "git-cliff"
+  "The Git-cliff executable used by Git-cliff."
+  :package-version '(git-cliff . "0.5.0")
+  :type 'string
+  :group 'git-cliff)
+
 (defcustom git-cliff-enable-examples t
   "If non-nil, configs in examples directory are included as presets."
   :package-version '(git-cliff . "0.1.0")
@@ -298,10 +304,15 @@ ARGS are as same as `completing-read'."
   "Read and set changelog file for current working directory with PROMPT."
   (git-cliff--read nil prompt '("CHANGELOG.md" "CHANGELOG.json")))
 
+(defun git-cliff--executable-path ()
+  "Return git-cliff executable path if found."
+  (or (and (file-exists-p git-cliff-executable) git-cliff-executable)
+      (executable-find "git-cliff")))
+
 (transient-define-suffix git-cliff--run (args)
   (interactive (list (transient-args 'git-cliff-menu)))
   (git-cliff-with-repo
-   (let* ((cmd (executable-find "git-cliff"))
+   (let* ((cmd (git-cliff--executable-path))
           (is-init (git-cliff--get-infix "--init"))
           (is-json (git-cliff--get-infix "--context"))
           (shell-command-dont-erase-buffer 'erase)
@@ -407,9 +418,12 @@ This command will commit all staged files by default."
 (defun git-cliff--status ()
   "Return info of the repository to display in menu."
   (let ((dir (and-let* ((file (buffer-file-name)))
-               (abbreviate-file-name (file-name-directory file)))))
-    (format "current dir : %s\n   latest  tag : %s\n"
-            (propertize (or dir "No dir") 'face 'link-visited)
+               (abbreviate-file-name (file-name-directory file))))
+        (cmd (and-let* ((path (git-cliff--executable-path)))
+               (abbreviate-file-name path))))
+    (format "binary path : %s\n   current dir : %s\n   latest  tag : %s\n"
+            (propertize (or cmd "Not found") 'face 'link-visited)
+            (propertize (or dir "Not dir") 'face 'link-visited)
             (propertize (git-cliff--tag-latest) 'face 'link-visited))))
 
 ;;;###autoload (autoload 'git-cliff-menu "git-cliff" nil t)
