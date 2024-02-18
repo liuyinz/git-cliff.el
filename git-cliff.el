@@ -94,6 +94,9 @@
 (defvar git-cliff-templates nil
   "Templates available for git-cliff.")
 
+(defvar ivy-sort-functions-alist)
+(defvar vertico-sort-function)
+
 ;; functions
 (defun git-cliff--get-infix (infix)
   "Return the value of INFIX in current active `git-cliff-menu'."
@@ -162,23 +165,25 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   (with-memoization git-cliff-templates
     (git-cliff--extract "\\.tera\\'")))
 
-;; SEE https://emacs.stackexchange.com/a/8177/35676
-(defun git-cliff--completion-table (type)
-  "Return completion table for TYPE."
-  (lambda (string pred action)
-    (if (eq action 'metadata)
-        `(metadata (display-sort-function . ,#'identity))
-      (complete-with-action
-       action
-       (seq-filter (lambda (x)
-                     (or git-cliff-enable-examples
-                         (face-equal (get-text-property (- (length x) 1)
-                                                        'face x)
-                                     'git-cliff-extra)))
-                   (if (eq type 'preset)
-                       (git-cliff--presets)
-                     (git-cliff--templates)))
-       string pred))))
+(defun git-cliff--read (multi &rest args)
+  "Read a string with completion in git-cliff.
+MULTI, if non-nil, reads multiple selections.
+ARGS are as same as `completing-read'."
+  ;; NOTE disable third-party packages sorting
+  (let ((ivy-sort-functions-alist nil)
+        (vertico-sort-function nil)
+        (func (if multi #'completing-read-multiple #'completing-read)))
+    (apply func args)))
+
+(defun git-cliff--collection (type)
+  "Return completion collection for TYPE."
+  (seq-filter
+   (lambda (x) (or git-cliff-enable-examples
+                   (face-equal (get-text-property (- (length x) 1) 'face x)
+                               'git-cliff-extra)))
+   (if (eq type 'preset)
+       (git-cliff--presets)
+     (git-cliff--templates))))
 
 ;; config
 (defun git-cliff--configs ()
@@ -195,7 +200,7 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 
 (defun git-cliff--set-config (prompt &rest _)
   "Read and set config file for current working directory with PROMPT."
-  (completing-read prompt (git-cliff--configs)))
+  (git-cliff--read nil prompt (git-cliff--configs)))
 
 (transient-define-argument git-cliff--arg-config ()
   :argument "--config="
@@ -235,7 +240,7 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 
 (defun git-cliff--set-tag (prompt &rest _)
   "Read and set unreleased tag with PROMPT."
-  (completing-read prompt (git-cliff--tag-bumped)))
+  (git-cliff--read nil prompt (git-cliff--tag-bumped)))
 
 (transient-define-argument git-cliff--arg-tag ()
   :argument "--tag="
@@ -248,7 +253,7 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 ;; body
 (defun git-cliff--set-body (prompt &rest _)
   "Read and set body template with PROMPT."
-  (completing-read prompt (git-cliff--completion-table 'template) nil t))
+  (git-cliff--read nil prompt (git-cliff--collection 'template) nil t))
 
 (transient-define-argument git-cliff--arg-body ()
   :argument "--body="
@@ -267,7 +272,8 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
   "Read and set commits range for git-cliff with PROMPT."
   (git-cliff-with-repo
    (let* ((crm-separator "\\.\\.")
-          (rev (completing-read-multiple
+          (rev (git-cliff--read
+                'multi
                 prompt
                 (nconc (split-string
                         (shell-command-to-string
@@ -290,7 +296,7 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 ;; changelog
 (defun git-cliff--set-changelog (prompt &rest _)
   "Read and set changelog file for current working directory with PROMPT."
-  (completing-read prompt '("CHANGELOG.md" "CHANGELOG.json")))
+  (git-cliff--read nil prompt '("CHANGELOG.md" "CHANGELOG.json")))
 
 (transient-define-suffix git-cliff--run (args)
   (interactive (list (transient-args 'git-cliff-menu)))
@@ -355,9 +361,10 @@ This command will commit all staged files by default."
      (when (or (not local-config)
                (setq backup (yes-or-no-p "File exist, continue?")))
        (when-let* ((preset
-                    (completing-read
+                    (git-cliff--read
+                     nil
                      "Select a preset: "
-                     (git-cliff--completion-table 'preset)
+                     (git-cliff--collection 'preset)
                      nil t))
                    (newname (concat "cliff." (file-name-extension preset))))
          ;; kill buffer and rename file
