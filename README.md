@@ -35,7 +35,7 @@ generate and update changelog for project. Call `git-cliff-menu` to start.
 
 ### dependencies
 
-- [git-cliff][git-cliff], version >= 1.4.0
+- [git-cliff][git-cliff], version >= 2.0.2
 - emacs, version >= 29.1
 - transient >= 0.5.0
 
@@ -67,8 +67,6 @@ This package is available on [MELPA]. Install with `M-x package-install` `RET` `
 
 ## Customization
 
-- `git-cliff-enable-examples` : If non-nil, enable examples when choose presets and templates.
-
 - `git-cliff-extra-path` : directory storing user defined [presets](https://git-cliff.org/docs/configuration/) and templates.
 
 ## Todo
@@ -83,6 +81,10 @@ This package is available on [MELPA]. Install with `M-x package-install` `RET` `
   Actually in the earlier versions, both options are supported. However, `git-cliff-menu` is designed to run in the root dir 
   of current repository by force, which means equivalent to `--workdir . --repository .` always. Due to same reason, multi-value of 
   `--repository` is disabled either in `git-cliff.el`.
+
+- no `--body` option support?
+
+  Almost useless option, please use `--init` instead
 
 ## License
 
