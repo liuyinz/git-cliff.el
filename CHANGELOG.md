@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.5.0](https://github.com/liuyinz/git-cliff.el/compare/v0.4.5..v0.5.0) - 2024-02-20
+
+### Documentation
+
+- update latest dependency and FAQ - ([6dadead](https://github.com/liuyinz/git-cliff.el/commit/6dadeadf45c476aa4fa61d42d11a229b21577fc9))
+
+### Features
+
+- add option git-cliff-executable and show info about it in menu - ([400d4c5](https://github.com/liuyinz/git-cliff.el/commit/400d4c524cd9126996c13434af4b8ef1311c2cc8))
+- update git-cliff menu to compatible with latest version - ([0783d4f](https://github.com/liuyinz/git-cliff.el/commit/0783d4f08a9ff040c36645021de8c24bf6c25e46))
+
+### Miscellaneous Chores
+
+- bump copyright years - ([1949b53](https://github.com/liuyinz/git-cliff.el/commit/1949b536a259b8da8722b5fd064b89fb163f976b))
+
 ## [0.4.5](https://github.com/liuyinz/git-cliff.el/compare/v0.4.4..v0.4.5) - 2023-12-26
 
 ### Bug Fixes
