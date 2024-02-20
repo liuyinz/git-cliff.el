@@ -59,14 +59,8 @@
   :type 'string
   :group 'git-cliff)
 
-(defcustom git-cliff-enable-examples t
-  "If non-nil, configs in examples directory are included as presets."
-  :package-version '(git-cliff . "0.1.0")
-  :type 'boolean
-  :group 'git-cliff)
-
 (defcustom git-cliff-extra-dir nil
-  "Directory storing user defined config presets and body templates."
+  "Directory storing user defined configs."
   :package-version '(git-cliff . "0.1.0")
   :type '(choice (const :tag "no extra directory" nil)
                  directory)
@@ -78,27 +72,21 @@
   :type 'string
   :group 'git-cliff)
 
-(defface git-cliff-example
-  '((t (:inherit font-lock-function-name-face)))
-  "Face for git-cliff examples files set by default.")
-
-(defface git-cliff-extra
-  '((t (:inherit font-lock-constant-face)))
-  "Face for git-cliff extra files defined by user.")
-
 ;; variables
 (defconst git-cliff-config-regexp "\\`cliff\\.\\(to\\|ya\\)ml\\'"
   "Regexp for matching git-cliff config file.")
 
-(defconst git-cliff-example-dir
-  (expand-file-name "examples" (file-name-directory load-file-name))
-  "Directory for storing default presets and templates.")
-
-(defvar git-cliff-presets nil
-  "Presets available for git-cliff.")
-
-(defvar git-cliff-templates nil
-  "Templates available for git-cliff.")
+(defconst git-cliff-builtin-configs
+  '("keepachangelog"
+    "github"
+    "github-keepachangelog"
+    "detailed"
+    "minimal"
+    "scoped"
+    "scopesorted"
+    "cocogitto"
+    "unconventional")
+  "Builtin configs for init option.")
 
 (defvar ivy-sort-functions-alist)
 (defvar vertico-sort-function)
@@ -137,7 +125,7 @@
     (read-only-mode 1)))
 
 (defun git-cliff--locate (dir &optional full regexp)
-  "Return a list of git cliff config or templates in DIR.
+  "Return a list of git cliff config in DIR.
 If FULL is non-nil, return absolute path, otherwise relative path according
 to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
 `git-cliff-config-regexp'."
@@ -145,31 +133,6 @@ to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
        (mapcar #'abbreviate-file-name
                (delq nil (directory-files
                           dir full (or regexp git-cliff-config-regexp))))))
-
-(defun git-cliff--propertize (dir regexp face)
-  "Return a list of file paths match REGEXP in DIR propertized in FACE."
-  (mapcar (lambda (x)
-            (concat (propertize (file-name-directory x)
-                                'face 'font-lock-comment-face)
-                    (propertize (file-name-nondirectory x) 'face face)))
-          (git-cliff--locate dir t regexp)))
-
-(defun git-cliff--extract (regexp)
-  "Return a list of file paths match REGEXP."
-  (nconc (git-cliff--propertize git-cliff-extra-dir regexp
-                                'git-cliff-extra)
-         (git-cliff--propertize git-cliff-example-dir regexp
-                                'git-cliff-example)))
-
-(defun git-cliff--presets ()
-  "Return a list of git-cliff config presets."
-  (with-memoization git-cliff-presets
-    (git-cliff--extract "\\.\\(to\\|ya\\)ml\\'")))
-
-(defun git-cliff--templates ()
-  "Return a list of git-cliff body templates."
-  (with-memoization git-cliff-templates
-    (git-cliff--extract "\\.tera\\'")))
 
 (defun git-cliff--read (multi &rest args)
   "Read a string with completion in git-cliff.
@@ -181,15 +144,10 @@ ARGS are as same as `completing-read'."
         (func (if multi #'completing-read-multiple #'completing-read)))
     (apply func args)))
 
-(defun git-cliff--collection (type)
-  "Return completion collection for TYPE."
-  (seq-filter
-   (lambda (x) (or git-cliff-enable-examples
-                   (face-equal (get-text-property (- (length x) 1) 'face x)
-                               'git-cliff-extra)))
-   (if (eq type 'preset)
-       (git-cliff--presets)
-     (git-cliff--templates))))
+;; init
+(defun git-cliff--set-init (prompt &rest _)
+  "Read and set init config from builtin templates with PROMPT."
+  (git-cliff--read nil prompt git-cliff-builtin-configs))
 
 ;; config
 (defun git-cliff--configs ()
@@ -226,7 +184,15 @@ ARGS are as same as `completing-read'."
                         (format "git describe --tags %s" rev)))))
     "Not git repo"))
 
-(defun git-cliff--tag-bumped ()
+(defun git-cliff--bumped-version ()
+  "Return bumped version in local repository."
+  (when-let* ((default-directory (git-cliff--get-repository))
+              (ver (shell-command-to-string
+                    "git-cliff --bumped-version 2>/dev/null"))
+              ((not (string-empty-p ver))))
+    (string-trim ver)))
+
+(defun git-cliff--bumped-list ()
   "Return a list of bumped tags if latest tag match major.minor.patch style."
   (let ((latest (git-cliff--tag-latest))
         (regexp
@@ -246,7 +212,7 @@ ARGS are as same as `completing-read'."
 
 (defun git-cliff--set-tag (prompt &rest _)
   "Read and set unreleased tag with PROMPT."
-  (git-cliff--read nil prompt (git-cliff--tag-bumped)))
+  (git-cliff--read nil prompt (git-cliff--bumped-list)))
 
 (transient-define-argument git-cliff--arg-tag ()
   :argument "--tag="
@@ -255,17 +221,6 @@ ARGS are as same as `completing-read'."
   :allow-empty t
   :prompt "Set tag: "
   :reader #'git-cliff--set-tag)
-
-;; body
-(defun git-cliff--set-body (prompt &rest _)
-  "Read and set body template with PROMPT."
-  (git-cliff--read nil prompt (git-cliff--collection 'template) nil t))
-
-(transient-define-argument git-cliff--arg-body ()
-  :argument "--body="
-  :class 'transient-option
-  :prompt "Set body: "
-  :reader #'git-cliff--set-body)
 
 ;; range
 (transient-define-argument git-cliff--arg-tag-switch ()
@@ -315,22 +270,6 @@ ARGS are as same as `completing-read'."
    (let* ((cmd (git-cliff--executable-path))
           (output-buf "*git-cliff-output*"))
      (unless cmd (user-error "Cannot find git-cliff in PATH"))
-     (when-let* ((template (git-cliff--get-infix "--body=")))
-       (setq args (cl-substitute
-                   (concat "--body="
-                           (shell-quote-argument
-                            ;; NOTE replace new line
-                            (replace-regexp-in-string
-                             "\\\\n" "\n"
-                             ;; NOTE replace line continuation
-                             (replace-regexp-in-string
-                              "\\\\\n\s*" ""
-                              (with-temp-buffer
-                                (insert-file-contents-literally template)
-                                (buffer-string))
-                              nil t)
-                             nil t)))
-                   (concat "--body=" template) args :test #'string-equal)))
      (if (zerop (apply #'call-process cmd nil output-buf nil args))
          (if-let ((file (or (and (or (git-cliff--get-infix "--init")
                                      (git-cliff--get-infix "--init="))
@@ -354,6 +293,7 @@ This command will commit all staged files by default."
   (git-cliff-with-repo
    (if-let* ((file (git-cliff--get-changelog))
              ((member (vc-git-state file) '(edited unregistered))))
+       ;; TODO get latest tag instead
        (when-let ((tag (or (git-cliff--get-infix "--tag=")
                            (git-cliff--set-tag "tag to release: "))))
          (when (zerop (shell-command
@@ -368,20 +308,21 @@ This command will commit all staged files by default."
            (call-interactively #'git-cliff--open-changelog)))
      (message "%s not prepared yet." file))))
 
-(transient-define-suffix git-cliff--choose-preset ()
+(transient-define-suffix git-cliff--init-non-builtin ()
   (interactive)
   (git-cliff-with-repo
    (let* ((local-config (car (git-cliff--locate default-directory)))
           backup)
      (when (or (not local-config)
                (setq backup (yes-or-no-p "File exist, continue?")))
-       (when-let* ((preset
+       (when-let* ((config
                     (git-cliff--read
                      nil
-                     "Select a preset: "
-                     (git-cliff--collection 'preset)
+                     "Select a config: "
+                     (git-cliff--locate git-cliff-extra-dir
+                                        nil "\\.\\(to\\|ya\\)ml\\'")
                      nil t))
-                   (newname (concat "cliff." (file-name-extension preset))))
+                   (newname (concat "cliff." (file-name-extension config))))
          ;; kill buffer and rename file
          (when backup
            (when-let ((buf (get-file-buffer local-config)))
@@ -392,7 +333,7 @@ This command will commit all staged files by default."
            (rename-file local-config
                         (concat local-config
                                 (format-time-string "-%Y%m%d%H%M%S"))))
-         (copy-file preset newname)
+         (copy-file config newname)
          (find-file newname))))))
 
 (transient-define-suffix git-cliff--edit-config ()
@@ -416,7 +357,8 @@ This command will commit all staged files by default."
      (t (select-window win)))
     (and file (git-cliff--render-changelog))))
 
-(dolist (cmd '("run" "release" "choose-preset" "edit-config" "open-changelog"))
+(dolist (cmd '("run" "release" "init-non-builtin"
+               "edit-config" "open-changelog"))
   (put (intern (concat "git-cliff--" cmd)) 'completion-predicate #'ignore))
 
 (defun git-cliff--status ()
@@ -425,10 +367,13 @@ This command will commit all staged files by default."
                (abbreviate-file-name (file-name-directory file))))
         (cmd (and-let* ((path (git-cliff--executable-path)))
                (abbreviate-file-name path))))
-    (format "binary path : %s\n   current dir : %s\n   latest  tag : %s\n"
+    (format "binary path : %s\n   current dir : %s\n   bumped tags : %s\n"
             (propertize (or cmd "Not found") 'face 'link-visited)
             (propertize (or dir "Not dir") 'face 'link-visited)
-            (propertize (git-cliff--tag-latest) 'face 'link-visited))))
+            (propertize (concat (git-cliff--tag-latest)
+                                (and-let* ((new (git-cliff--bumped-version)))
+                                  (concat " => " new)))
+                        'face 'link-visited))))
 
 ;;;###autoload (autoload 'git-cliff-menu "git-cliff" nil t)
 (transient-define-prefix git-cliff-menu ()
@@ -440,15 +385,16 @@ This command will commit all staged files by default."
     (:info #'git-cliff--status)]
    ["Flags"
     :pad-keys t
-    ;; TODO support init= options, https://github.com/orhun/git-cliff/pull/370
-    ("-i" "Init default config" ("-i" "--init"))
     ("-T" "Sort the tags topologically" "--topo-order")
     ("-x" "Print changelog context as JSON" "--context")
     ("-l" "Processes commits from tag" git-cliff--arg-tag-switch)
     ("-B" "Bump version for unreleased" "--bump")
-    ]
+    ("-N" "Disables the external command execution" "--no-exec")]
    ["Options"
     :pad-keys t
+    ("-i" "Init default config" "--init="
+     :prompt "Set init config: "
+     :reader git-cliff--set-init)
     ("-c" "Set config file" git-cliff--arg-config)
     ("-t" "Set tag of unreleased version" git-cliff--arg-tag)
     ("-o" "Generate new changelog" "--output="
@@ -460,19 +406,21 @@ This command will commit all staged files by default."
     ("-S" "Set commits order inside sections" "--sort="
      :always-read t
      :choices ("oldest" "newest"))
-    ("-b" "Set template for changelog body" git-cliff--arg-body)
     ("-m" "Set custom commit message to include in changelog" "--with-commit=")
+    ("-k" "Set commits that will be skipped in the changelog" "--skip-commit=")
     ("-I" "Set path to include related commits" "--include-path=")
     ("-E" "Set path to exclude related commits" "--exclude-path=")
     ("-s" "Strip the given parts from changelog" "--strip="
-     :choices ("header" "footer" "all"))]
+     :choices ("header" "footer" "all"))
+    ("-g" "Set the Github API token" "--github-token=")
+    ("-G" "Set the Github repository" "--github-repo=")]
    ["Range"
     ("--" "Limit to commits" git-cliff--arg-range)]
    [["Command"
      ("r" "Run command"      git-cliff--run)
      ("v" "Release version"  git-cliff--release)]
     ["Other"
-     ("c" "Choose preset"    git-cliff--choose-preset)
+     ("c" "Init non-builtin" git-cliff--init-non-builtin)
      ("o" "Open changelog"   git-cliff--open-changelog)
      ("e" "Edit config"      git-cliff--edit-config)]]])
 
