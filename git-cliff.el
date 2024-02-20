@@ -313,11 +313,7 @@ ARGS are as same as `completing-read'."
   (interactive (list (transient-args 'git-cliff-menu)))
   (git-cliff-with-repo
    (let* ((cmd (git-cliff--executable-path))
-          (is-init (git-cliff--get-infix "--init"))
-          (is-json (git-cliff--get-infix "--context"))
-          (shell-command-dont-erase-buffer 'erase)
-          (shell-command-buffer-name (concat "*git-cliff-preview."
-                                             (if is-json "json" "md"))))
+          (output-buf "*git-cliff-output*"))
      (unless cmd (user-error "Cannot find git-cliff in PATH"))
      (when-let* ((template (git-cliff--get-infix "--body=")))
        (setq args (cl-substitute
@@ -335,13 +331,21 @@ ARGS are as same as `completing-read'."
                               nil t)
                              nil t)))
                    (concat "--body=" template) args :test #'string-equal)))
-     (when (zerop (shell-command (format "%s %s" cmd (string-join args " "))))
-       (if-let ((file (or (and is-init "cliff.toml")
-                          (or (git-cliff--get-infix "--output=")
-                              (git-cliff--get-infix "--prepend=")))))
-           (find-file-other-window file)
-         (switch-to-buffer-other-window shell-command-buffer-name))
-       (and (not is-json) (not is-init) (git-cliff--render-changelog))))))
+     (if (zerop (apply #'call-process cmd nil output-buf nil args))
+         (if-let ((file (or (and (or (git-cliff--get-infix "--init")
+                                     (git-cliff--get-infix "--init="))
+                                 "cliff.toml")
+                            (or (git-cliff--get-infix "--output=")
+                                (git-cliff--get-infix "--prepend=")))))
+             (find-file-other-window file)
+           (with-current-buffer output-buf
+             (let* ((is-json (git-cliff--get-infix "--context"))
+                    (new-name (concat (substring output-buf 0 -1)
+                                      (if is-json ".json" ".md"))))
+               (rename-buffer new-name)
+               (unless is-json (git-cliff--render-changelog))
+               (switch-to-buffer-other-window new-name))))
+       (switch-to-buffer-other-window output-buf)))))
 
 (transient-define-suffix git-cliff--release ()
   "Release new version if changelog update.
