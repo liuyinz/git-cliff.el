@@ -385,7 +385,7 @@ This command will commit all staged files by default."
     (:info #'git-cliff--status)]
    ["Flags"
     :pad-keys t
-    ("-T" "Sort the tags topologically" "--topo-order")
+    ("-A" "Sort the tags topologically" "--topo-order")
     ("-x" "Print changelog context as JSON" "--context")
     ("-l" "Processes commits from tag" git-cliff--arg-tag-switch)
     ("-B" "Bump version for unreleased" "--bump")
@@ -397,6 +397,7 @@ This command will commit all staged files by default."
      :reader git-cliff--set-init)
     ("-c" "Set config file" git-cliff--arg-config)
     ("-t" "Set tag of unreleased version" git-cliff--arg-tag)
+    ("-T" "Set regex for matching git tags" "--tag-pattern=")
     ("-o" "Generate new changelog" "--output="
      :prompt "Set output file: "
      :reader git-cliff--set-changelog)

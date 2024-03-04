@@ -35,7 +35,7 @@ generate and update changelog for project. Call `git-cliff-menu` to start.
 
 ### dependencies
 
-- [git-cliff][git-cliff], version >= 2.0.2
+- [git-cliff][git-cliff], version >= 2.1.2
 - emacs, version >= 29.1
 - transient >= 0.5.0
 
