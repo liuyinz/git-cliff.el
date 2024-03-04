@@ -367,13 +367,14 @@ This command will commit all staged files by default."
                (abbreviate-file-name (file-name-directory file))))
         (cmd (and-let* ((path (git-cliff--executable-path)))
                (abbreviate-file-name path))))
-    (format "binary path : %s\n   current dir : %s\n   bumped tags : %s\n"
-            (propertize (or cmd "Not found") 'face 'link-visited)
-            (propertize (or dir "Not dir") 'face 'link-visited)
-            (propertize (concat (git-cliff--tag-latest)
-                                (and-let* ((new (git-cliff--bumped-version)))
-                                  (concat " => " new)))
-                        'face 'link-visited))))
+    (apply #'format
+           "binary path : %s\n   current dir : %s\n   bumped tags : %s\n"
+           (mapcar (lambda (s) (propertize s 'face 'success))
+                   (list (or cmd "Not found")
+                         (or dir "Not dir")
+                         (concat (git-cliff--tag-latest)
+                                 (and-let* ((new (git-cliff--bumped-version)))
+                                   (concat " => " new))))))))
 
 ;;;###autoload (autoload 'git-cliff-menu "git-cliff" nil t)
 (transient-define-prefix git-cliff-menu ()
