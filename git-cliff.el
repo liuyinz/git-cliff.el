@@ -124,7 +124,7 @@
     (and (fboundp 'markdown-view-mode) (markdown-view-mode))
     (read-only-mode 1)))
 
-(defun git-cliff--locate (dir &optional full regexp)
+(defun git-cliff--locate (dir &optional regexp full)
   "Return a list of git cliff config in DIR.
 If FULL is non-nil, return absolute path, otherwise relative path according
 to DIR.  If REGEXP is non-nil, match configurations by REGEXP instead of
@@ -152,15 +152,17 @@ ARGS are as same as `completing-read'."
 ;; config
 (defun git-cliff--configs ()
   "Return a list of git-cliff configs available for current working directory."
-  (nconc (git-cliff--locate (git-cliff--get-repository))
-         (git-cliff--locate
-          (convert-standard-filename
-           (concat (getenv "HOME")
-                   (cl-case system-type
-                     (darwin "/Library/Application Support/git-cliff/")
-                     ((cygwin windows-nt ms-dos) "/AppData/Roaming/git-cliff/")
-                     (_ "/.config/git-cliff/"))))
-          t git-cliff-config-regexp)))
+  (let ((dir (git-cliff--get-repository)))
+    (nconc (git-cliff--locate dir)
+           (git-cliff--locate dir "\\`Cargo\\.toml\\'")
+           (git-cliff--locate
+            (convert-standard-filename
+             (concat (getenv "HOME")
+                     (cl-case system-type
+                       (darwin "/Library/Application Support/git-cliff/")
+                       ((cygwin windows-nt ms-dos) "/AppData/Roaming/git-cliff/")
+                       (_ "/.config/git-cliff/"))))
+            nil t))))
 
 (defun git-cliff--set-config (prompt &rest _)
   "Read and set config file for current working directory with PROMPT."
@@ -320,7 +322,7 @@ This command will commit all staged files by default."
                      nil
                      "Select a config: "
                      (git-cliff--locate git-cliff-extra-dir
-                                        nil "\\.\\(to\\|ya\\)ml\\'")
+                                        "\\.\\(to\\|ya\\)ml\\'")
                      nil t))
                    (newname (concat "cliff." (file-name-extension config))))
          ;; kill buffer and rename file
