@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.6.0](https://github.com/liuyinz/git-cliff.el/compare/v0.5.0..v0.6.0) - 2024-03-31
+
+### Bug Fixes
+
+- support option --tag-pattern - ([95b2983](https://github.com/liuyinz/git-cliff.el/commit/95b298305877d260f18fa1403c1efd68448ca2e8))
+
+### Features
+
+- **(config)** support project manifest in Cargo.toml - ([af38ef1](https://github.com/liuyinz/git-cliff.el/commit/af38ef18d3c32c9d1b1dbf47422a2f370ea7e6fc))
+
 ## [0.5.0](https://github.com/liuyinz/git-cliff.el/compare/v0.4.5..v0.5.0) - 2024-02-20
 
 ### Documentation
