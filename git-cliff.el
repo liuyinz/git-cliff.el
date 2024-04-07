@@ -72,7 +72,9 @@
   :type 'string
   :group 'git-cliff)
 
-;; variables
+
+;;; Variables
+
 (defconst git-cliff-config-regexp "\\`cliff\\.\\(to\\|ya\\)ml\\'"
   "Regexp for matching git-cliff config file.")
 
@@ -91,7 +93,9 @@
 (defvar ivy-sort-functions-alist)
 (defvar vertico-sort-function)
 
-;; functions
+
+;;; Functions
+
 (defun git-cliff--get-infix (infix)
   "Return the value of INFIX in current active `git-cliff-menu'."
   (transient-arg-value infix (transient-args 'git-cliff-menu)))
@@ -215,6 +219,9 @@ ARGS are as same as `completing-read'."
 (defun git-cliff--set-tag (prompt &rest _)
   "Read and set unreleased tag with PROMPT."
   (git-cliff--read nil prompt (git-cliff--bumped-list)))
+
+
+;;; Transient args
 
 (transient-define-argument git-cliff--arg-tag ()
   :argument "--tag="
@@ -377,6 +384,9 @@ This command will commit all staged files by default."
                          (concat (git-cliff--tag-latest)
                                  (and-let* ((new (git-cliff--bumped-version)))
                                    (concat " => " new))))))))
+
+
+;;; Commands
 
 ;;;###autoload (autoload 'git-cliff-menu "git-cliff" nil t)
 (transient-define-prefix git-cliff-menu ()
