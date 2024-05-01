@@ -5,7 +5,7 @@
 ;; Author: liuyinz <liuyinz95@gmail.com>
 ;; Maintainer: liuyinz <liuyinz95@gmail.com>
 ;; Version: 0.6.0
-;; Package-Requires: ((emacs "29.1") (transient "0.5.0"))
+;; Package-Requires: ((emacs "29.1") (transient "0.6.0"))
 ;; Keywords: tools
 ;; Homepage: https://github.com/liuyinz/git-cliff.el
 
@@ -365,10 +365,6 @@ This command will commit all staged files by default."
      ((null win) (switch-to-buffer-other-window buf))
      (t (select-window win)))
     (and file (git-cliff--render-changelog))))
-
-(dolist (cmd '("run" "release" "init-non-builtin"
-               "edit-config" "open-changelog"))
-  (put (intern (concat "git-cliff--" cmd)) 'completion-predicate #'ignore))
 
 (defun git-cliff--status ()
   "Return info of the repository to display in menu."
