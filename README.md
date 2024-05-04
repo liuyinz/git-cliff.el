@@ -21,7 +21,7 @@ generate and update changelog for project. Call `git-cliff-menu` to start.
   - [Customization](#customization)
   - [Todo](#todo)
   - [FAQ](#faq)
-  - [License](#license)
+  - [Donate](#donate)
 
 <!-- markdown-toc end -->
 
@@ -86,9 +86,16 @@ This package is available on [MELPA]. Install with `M-x package-install` `RET` `
 
   Almost useless option, please use `--init` instead
 
-## License
+## Donate
 
-See [LICENSE](LICENSE).
+If you think the it's helpful for you, please consider paying a cup of coffee
+for me. Thank you! :smile:
+
+<a href="https://paypal.me/liuyinz" target="_blank">
+<img
+src="https://www.paypalobjects.com/digitalassets/c/website/marketing/apac/C2/logos-buttons/optimize/44_Grey_PayPal_Pill_Button.png"
+alt="PayPal" width="120" />
+</a>
 
 [melpa]: http://melpa.org/#/git-cliff
 [git-cliff]: https://github.com/orhun/git-cliff
