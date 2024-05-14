@@ -38,7 +38,6 @@
 (require 'cl-lib)
 (require 'lisp-mnt)
 (require 'crm)
-(require 'vc-git)
 (require 'transient)
 
 (require 'dash)
@@ -298,12 +297,12 @@ ARGS are as same as `completing-read'."
 This command will commit all staged files by default."
   (interactive)
   (git-cliff-with-repo
-   (if-let* ((file (git-cliff--get-changelog))
-             ((member (vc-git-state file) '(edited unregistered))))
-       ;; TODO get latest tag instead
-       (when-let ((tag (or (git-cliff--get-infix "--tag=")
-                           (git-cliff--set-tag "tag to release: "))))
-         (when (zerop (shell-command
+   (if-let* ((file (git-cliff--get-changelog)))
+       (when (y-or-n-p "Will release a new version, continue?")
+         ;; TODO get latest tag instead
+         (when-let ((tag (or (git-cliff--get-infix "--tag=")
+                             (git-cliff--set-tag "tag to release: "))))
+           (if (zerop (shell-command
                        (format "git add %s;git commit -m \"%s\";git tag %s"
                                file
                                (read-from-minibuffer
@@ -312,8 +311,9 @@ This command will commit all staged files by default."
                                             "Release: %s")
                                         tag))
                                tag)))
-           (call-interactively #'git-cliff--open-changelog)))
-     (message "%s not prepared yet." file))))
+               (call-interactively #'git-cliff--open-changelog)
+             (message "Release failed."))))
+     (message "CHANGELOG is not prepared yet."))))
 
 (transient-define-suffix git-cliff--init-non-builtin ()
   (interactive)
