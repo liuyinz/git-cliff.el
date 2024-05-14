@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0](https://github.com/liuyinz/git-cliff.el/compare/v0.6.0..v0.7.0) - 2024-05-14
+
+### Documentation
+
+- add donate link - ([6730f40](https://github.com/liuyinz/git-cliff.el/commit/6730f4064e694f6ada2522bf2a83ea7a7fb149d2))
+
+### Miscellaneous Chores
+
+- **(dependency)** add dash library as dependency - ([d36a094](https://github.com/liuyinz/git-cliff.el/commit/d36a09423dc69ae0bba99f4141ff2633c4fe6353))
+- **(deps)** update transient version to v0.6.0 - ([813f856](https://github.com/liuyinz/git-cliff.el/commit/813f8569a784352c33200229aa0faafe269e4f16))
+
 ## [0.6.0](https://github.com/liuyinz/git-cliff.el/compare/v0.5.0..v0.6.0) - 2024-03-31
 
 ### Bug Fixes
