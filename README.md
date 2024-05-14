@@ -38,6 +38,7 @@ generate and update changelog for project. Call `git-cliff-menu` to start.
 - [git-cliff][git-cliff], version >= 2.2
 - emacs, version >= 29.1
 - transient >= 0.5.0
+- [dash](https://github.com/magnars/dash.el), version >= 2.19.1
 
 ### package
 
