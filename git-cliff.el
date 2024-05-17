@@ -35,10 +35,10 @@
 
 ;;; Code:
 
-(require 'cl-lib)
 (require 'lisp-mnt)
 (require 'crm)
 (require 'transient)
+(require 'pcase)
 
 (require 'dash)
 
@@ -164,9 +164,10 @@ ARGS are as same as `completing-read'."
               (,dir "\\`Cargo\\.toml\\'")
               (,(convert-standard-filename
                  (concat (getenv "HOME")
-                         (cl-case system-type
-                           (darwin "/Library/Application Support/git-cliff/")
-                           ((cygwin windows-nt ms-dos) "/AppData/Roaming/git-cliff/")
+                         (pcase system-type
+                           ('darwin "/Library/Application Support/git-cliff/")
+                           ((guard (memq system-type '(cygwin windows-nt ms-dos)))
+                            "/AppData/Roaming/git-cliff/")
                            (_ "/.config/git-cliff/"))))
                nil t))))))
 
