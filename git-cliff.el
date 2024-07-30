@@ -232,6 +232,22 @@ ARGS are as same as `completing-read'."
   :prompt "Set tag: "
   :reader #'git-cliff--set-tag)
 
+(transient-define-argument git-cliff--ignore-tags ()
+  :argument "--ignore-tags="
+  :class 'transient-option
+  :always-read nil
+  :prompt "Set ignore tags (separated by |): "
+  :reader #'git-cliff--set-ignore-tags)
+
+(defun git-cliff--set-ignore-tags (prompt &rest _)
+  (git-cliff-with-repo
+   (let* ((crm-separator "|")
+          (tags (git-cliff--read
+                 'multi prompt
+                 (split-string (shell-command-to-string "git tag --list")
+                               "\n" t))))
+     (and tags (string-join tags "|")))))
+
 ;; range
 (transient-define-argument git-cliff--arg-tag-switch ()
   :class 'transient-switches
@@ -256,7 +272,7 @@ ARGS are as same as `completing-read'."
 
 (transient-define-argument git-cliff--arg-range ()
   :argument "-- "
-  :prompt "Limit to commits: "
+  :prompt "Limit to commits (separated by ..): "
   :class 'transient-option
   :always-read nil
   :reader #'git-cliff--set-range)
@@ -404,6 +420,7 @@ This command will commit all staged files by default."
     ("-c" "Set config file" git-cliff--arg-config)
     ("-t" "Set tag of unreleased version" git-cliff--arg-tag)
     ("-T" "Set regex for matching git tags" "--tag-pattern=")
+    ("-K" "Set ignore tags" git-cliff--ignore-tags)
     ("-o" "Generate new changelog" "--output="
      :prompt "Set output file: "
      :reader git-cliff--set-changelog)
