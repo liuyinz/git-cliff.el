@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.8.0](https://github.com/liuyinz/git-cliff.el/compare/v0.7.0..v0.8.0) - 2024-07-30
+
+### Bug Fixes
+
+- option -o and -p could coexist now - ([3b7f220](https://github.com/liuyinz/git-cliff.el/commit/3b7f2203e1f022cc2866c9611e5d93b9389881cc))
+
+### Features
+
+- add option of --ignore-tags - ([0faea29](https://github.com/liuyinz/git-cliff.el/commit/0faea2967b36ab378b9b727c42ce1ada7d11add6))
+
 ## [0.7.0](https://github.com/liuyinz/git-cliff.el/compare/v0.6.0..v0.7.0) - 2024-05-14
 
 ### Documentation

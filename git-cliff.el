@@ -4,7 +4,7 @@
 
 ;; Author: liuyinz <liuyinz95@gmail.com>
 ;; Maintainer: liuyinz <liuyinz95@gmail.com>
-;; Version: 0.7.0
+;; Version: 0.8.0
 ;; Package-Requires: ((emacs "29.1") (transient "0.6.0") (dash "2.19.1"))
 ;; Keywords: tools
 ;; Homepage: https://github.com/liuyinz/git-cliff.el
