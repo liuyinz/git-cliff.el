@@ -385,8 +385,7 @@ This command will commit all staged files by default."
 ;;;###autoload (autoload 'git-cliff-menu "git-cliff" nil t)
 (transient-define-prefix git-cliff-menu ()
   "Invoke command for `git-cliff'."
-  :incompatible '(("--output=" "--prepend=")
-                  ("--bump" "--tag="))
+  :incompatible '(("--bump" "--tag="))
   [:class transient-subgroups
    ["Status"
     (:info #'git-cliff--status)]
