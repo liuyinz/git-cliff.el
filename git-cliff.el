@@ -282,6 +282,10 @@ ARGS are as same as `completing-read'."
   "Read and set changelog file for current working directory with PROMPT."
   (git-cliff--read nil prompt '("CHANGELOG.md" "CHANGELOG.json")))
 
+(defun git-cliff--select-context (prompt &rest _)
+  "Select json context with PROMPT."
+  (read-file-name prompt nil nil t))
+
 (defun git-cliff--executable-path ()
   "Return git-cliff executable path if found."
   (or (and (file-exists-p git-cliff-executable) git-cliff-executable)
@@ -421,6 +425,9 @@ This command will commit all staged files by default."
     ("-t" "Set tag of unreleased version" git-cliff--arg-tag)
     ("-T" "Set regex for matching git tags" "--tag-pattern=")
     ("-K" "Set ignore tags" git-cliff--ignore-tags)
+    ("-C" "Generate changelog from JSON context" "--from-context="
+     :prompt "Select JSON context: "
+     :reader git-cliff--select-context)
     ("-o" "Generate new changelog" "--output="
      :prompt "Set output file: "
      :reader git-cliff--set-changelog)
