@@ -415,7 +415,8 @@ This command will commit all staged files by default."
     ("-x" "Print changelog context as JSON" "--context")
     ("-l" "Processes commits from tag" git-cliff--arg-tag-switch)
     ("-B" "Bump version for unreleased" "--bump")
-    ("-N" "Disables the external command execution" "--no-exec")]
+    ("-N" "Disables the external command execution" "--no-exec")
+    ("-Y" "Include only the tags that belong to the current branch" "--use-branch-tags")]
    ["Options"
     :pad-keys t
     ("-i" "Init default config" "--init="
