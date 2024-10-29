@@ -103,12 +103,12 @@
 
 (defun git-cliff--get-repository ()
   "Return git project path if exists."
-  (when-let ((file (buffer-file-name)))
+  (when-let* ((file (buffer-file-name)))
     (locate-dominating-file file ".git")))
 
 (defmacro git-cliff-with-repo (&rest body)
   "Evaluate BODY if repository exists."
-  `(if-let ((default-directory (git-cliff--get-repository)))
+  `(if-let* ((default-directory (git-cliff--get-repository)))
        (progn ,@body)
      (prog1 nil
        (message "git-cliff: couldn't find git repository."))))
@@ -184,7 +184,7 @@ ARGS are as same as `completing-read'."
 ;; tag
 (defun git-cliff--tag-latest ()
   "Return name of latest tag info in local repository if exists."
-  (if-let ((default-directory (git-cliff--get-repository))
+  (if-let* ((default-directory (git-cliff--get-repository))
            (rev (shell-command-to-string "git rev-list --tags --max-count=1")))
       (if (string-empty-p rev)
           "No tag"
@@ -298,7 +298,7 @@ ARGS are as same as `completing-read'."
           (output-buf "*git-cliff-output*"))
      (unless cmd (user-error "Cannot find git-cliff in PATH"))
      (if (zerop (apply #'call-process cmd nil output-buf nil args))
-         (if-let ((file (or (and (or (git-cliff--get-infix "--init")
+         (if-let* ((file (or (and (or (git-cliff--get-infix "--init")
                                      (git-cliff--get-infix "--init="))
                                  "cliff.toml")
                             (or (git-cliff--get-infix "--output=")
@@ -321,7 +321,7 @@ This command will commit all staged files by default."
    (if-let* ((file (git-cliff--get-changelog)))
        (when (y-or-n-p "Will release a new version, continue?")
          ;; TODO get latest tag instead
-         (when-let ((tag (or (git-cliff--get-infix "--tag=")
+         (when-let* ((tag (or (git-cliff--get-infix "--tag=")
                              (git-cliff--set-tag "tag to release: "))))
            (if (zerop (shell-command
                        (format "git add %s;git commit -m \"%s\";git tag %s"
@@ -352,7 +352,7 @@ This command will commit all staged files by default."
                    (newname (concat "cliff." (file-name-extension config))))
          ;; kill buffer and rename file
          (when backup
-           (when-let ((buf (get-file-buffer local-config)))
+           (when-let* ((buf (get-file-buffer local-config)))
              (with-current-buffer buf
                (let ((kill-buffer-query-functions nil))
                  (save-buffer)
