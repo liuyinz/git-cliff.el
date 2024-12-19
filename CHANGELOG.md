@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/liuyinz/git-cliff.el/compare/v0.8.0..v0.9.0) - 2024-12-19
+
+### Features
+
+- support option --from-context - ([ca71436](https://github.com/liuyinz/git-cliff.el/commit/ca71436f8cdbdd37d07f91c94231234d3fc9c8b4))
+- support option --use-branch-tags - ([ca8b9f6](https://github.com/liuyinz/git-cliff.el/commit/ca8b9f61abc0279a045e10ddb3aaa6f1214dcdfd))
+
 ## [0.8.0](https://github.com/liuyinz/git-cliff.el/compare/v0.7.0..v0.8.0) - 2024-07-30
 
 ### Bug Fixes
