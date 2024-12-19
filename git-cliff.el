@@ -150,6 +150,7 @@ ARGS are as same as `completing-read'."
     (apply func args)))
 
 ;; init
+
 (defun git-cliff--set-init (prompt &rest _)
   "Read and set init config from builtin templates with PROMPT."
   (git-cliff--read nil prompt git-cliff-builtin-configs))
@@ -175,17 +176,11 @@ ARGS are as same as `completing-read'."
   "Read and set config file for current working directory with PROMPT."
   (git-cliff--read nil prompt (git-cliff--configs)))
 
-(transient-define-argument git-cliff--arg-config ()
-  :argument "--config="
-  :class 'transient-option
-  :prompt "Set config: "
-  :reader #'git-cliff--set-config)
-
 ;; tag
 (defun git-cliff--tag-latest ()
   "Return name of latest tag info in local repository if exists."
   (if-let* ((default-directory (git-cliff--get-repository))
-           (rev (shell-command-to-string "git rev-list --tags --max-count=1")))
+            (rev (shell-command-to-string "git rev-list --tags --max-count=1")))
       (if (string-empty-p rev)
           "No tag"
         (unless (string-prefix-p "fatal: not a git repository" rev)
@@ -221,25 +216,8 @@ ARGS are as same as `completing-read'."
   "Read and set unreleased tag with PROMPT."
   (git-cliff--read nil prompt (git-cliff--bumped-list)))
 
-
-;;; Transient args
-
-(transient-define-argument git-cliff--arg-tag ()
-  :argument "--tag="
-  :class 'transient-option
-  :always-read nil
-  :allow-empty t
-  :prompt "Set tag: "
-  :reader #'git-cliff--set-tag)
-
-(transient-define-argument git-cliff--ignore-tags ()
-  :argument "--ignore-tags="
-  :class 'transient-option
-  :always-read nil
-  :prompt "Set ignore tags (separated by |): "
-  :reader #'git-cliff--set-ignore-tags)
-
 (defun git-cliff--set-ignore-tags (prompt &rest _)
+  "Set ignored tags for cliff with PROMPT."
   (git-cliff-with-repo
    (let* ((crm-separator "|")
           (tags (git-cliff--read
@@ -247,13 +225,6 @@ ARGS are as same as `completing-read'."
                  (split-string (shell-command-to-string "git tag --list")
                                "\n" t))))
      (and tags (string-join tags "|")))))
-
-;; range
-(transient-define-argument git-cliff--arg-tag-switch ()
-  :class 'transient-switches
-  :argument-format "--%s"
-  :argument-regexp "\\(--\\(latest\\|current\\|unreleased\\)\\)"
-  :choices '("latest" "current" "unreleased"))
 
 (defun git-cliff--set-range (prompt &rest _)
   "Read and set commits range for git-cliff with PROMPT."
@@ -270,13 +241,6 @@ ARGS are as same as `completing-read'."
                              "MERGE_HEAD" "CHERRY_PICK_HEAD"))))))
      (and rev (concat (car rev) ".." (cadr rev))))))
 
-(transient-define-argument git-cliff--arg-range ()
-  :argument "-- "
-  :prompt "Limit to commits (separated by ..): "
-  :class 'transient-option
-  :always-read nil
-  :reader #'git-cliff--set-range)
-
 ;; changelog
 (defun git-cliff--set-changelog (prompt &rest _)
   "Read and set changelog file for current working directory with PROMPT."
@@ -291,18 +255,81 @@ ARGS are as same as `completing-read'."
   (or (and (file-exists-p git-cliff-executable) git-cliff-executable)
       (executable-find "git-cliff")))
 
-(transient-define-suffix git-cliff--run (args)
-  (interactive (list (transient-args 'git-cliff-menu)))
+
+;;; Transient args
+
+(transient-define-infix git-cliff--arg-init ()
+  :argument "--init="
+  :class 'transient-option
+  :prompt "Set init config: "
+  :reader #'git-cliff--set-init)
+
+(transient-define-infix git-cliff--arg-config ()
+  :argument "--config="
+  :class 'transient-option
+  :prompt "Set config: "
+  :reader #'git-cliff--set-config)
+
+(transient-define-infix git-cliff--arg-tag ()
+  :argument "--tag="
+  :class 'transient-option
+  :always-read nil
+  :allow-empty t
+  :prompt "Set tag: "
+  :reader #'git-cliff--set-tag)
+
+(transient-define-infix git-cliff--ignore-tags ()
+  :argument "--ignore-tags="
+  :class 'transient-option
+  :always-read nil
+  :prompt "Set ignore tags (separated by |): "
+  :reader #'git-cliff--set-ignore-tags)
+
+;; range
+(transient-define-infix git-cliff--arg-tag-switch ()
+  :class 'transient-switches
+  :argument-format "--%s"
+  :argument-regexp "\\(--\\(latest\\|current\\|unreleased\\)\\)"
+  :choices '("latest" "current" "unreleased"))
+
+(transient-define-infix git-cliff--arg-range ()
+  :argument "-- "
+  :class 'transient-option
+  :prompt "Limit to commits (separated by ..): "
+  :always-read nil
+  :reader #'git-cliff--set-range)
+
+(transient-define-infix git-cliff--arg-context ()
+  :argument "--from-context="
+  :class 'transient-option
+  :prompt "Select JSON context: "
+  :reader #'git-cliff--select-context)
+
+(transient-define-infix git-cliff--arg-output ()
+  :argument "--output="
+  :class 'transient-option
+  :prompt "Set output file: "
+  :reader #'git-cliff--set-changelog)
+
+(transient-define-infix git-cliff--arg-prepend ()
+  :argument "--prepend="
+  :class 'transient-option
+  :prompt "Set prepend file: "
+  :reader #'git-cliff--set-changelog)
+
+(transient-define-suffix git-cliff--run ()
+  (interactive)
   (git-cliff-with-repo
    (let* ((cmd (git-cliff--executable-path))
           (output-buf "*git-cliff-output*"))
      (unless cmd (user-error "Cannot find git-cliff in PATH"))
-     (if (zerop (apply #'call-process cmd nil output-buf nil args))
+     (if (zerop (apply #'call-process cmd nil output-buf nil
+                       (transient-args 'git-cliff-menu)))
          (if-let* ((file (or (and (or (git-cliff--get-infix "--init")
-                                     (git-cliff--get-infix "--init="))
-                                 "cliff.toml")
-                            (or (git-cliff--get-infix "--output=")
-                                (git-cliff--get-infix "--prepend=")))))
+                                      (git-cliff--get-infix "--init="))
+                                  "cliff.toml")
+                             (or (git-cliff--get-infix "--output=")
+                                 (git-cliff--get-infix "--prepend=")))))
              (find-file-other-window file)
            (with-current-buffer output-buf
              (let* ((is-json (git-cliff--get-infix "--context"))
@@ -322,7 +349,7 @@ This command will commit all staged files by default."
        (when (y-or-n-p "Will release a new version, continue?")
          ;; TODO get latest tag instead
          (when-let* ((tag (or (git-cliff--get-infix "--tag=")
-                             (git-cliff--set-tag "tag to release: "))))
+                              (git-cliff--set-tag "tag to release: "))))
            (if (zerop (shell-command
                        (format "git add %s;git commit -m \"%s\";git tag %s"
                                file
@@ -419,22 +446,14 @@ This command will commit all staged files by default."
     ("-Y" "Include only the tags that belong to the current branch" "--use-branch-tags")]
    ["Options"
     :pad-keys t
-    ("-i" "Init default config" "--init="
-     :prompt "Set init config: "
-     :reader git-cliff--set-init)
+    ("-i" "Init default config" git-cliff--arg-init)
     ("-c" "Set config file" git-cliff--arg-config)
     ("-t" "Set tag of unreleased version" git-cliff--arg-tag)
     ("-T" "Set regex for matching git tags" "--tag-pattern=")
     ("-K" "Set ignore tags" git-cliff--ignore-tags)
-    ("-C" "Generate changelog from JSON context" "--from-context="
-     :prompt "Select JSON context: "
-     :reader git-cliff--select-context)
-    ("-o" "Generate new changelog" "--output="
-     :prompt "Set output file: "
-     :reader git-cliff--set-changelog)
-    ("-p" "Prepend existing changelog" "--prepend="
-     :prompt "Set prepend file: "
-     :reader git-cliff--set-changelog)
+    ("-C" "Generate changelog from JSON context" git-cliff--arg-context)
+    ("-o" "Generate new changelog" git-cliff--arg-output)
+    ("-p" "Prepend existing changelog" git-cliff--arg-output)
     ("-S" "Set commits order inside sections" "--sort="
      :always-read t
      :choices ("oldest" "newest"))
