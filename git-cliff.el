@@ -1,6 +1,6 @@
 ;;; git-cliff.el --- Generate and update changelog using git-cliff -*- lexical-binding: t -*-
 
-;; Copyright (C) 2023, 2024 liuyinz
+;; Copyright (C) 2023-2025 liuyinz
 
 ;; Author: liuyinz <liuyinz95@gmail.com>
 ;; Maintainer: liuyinz <liuyinz95@gmail.com>
